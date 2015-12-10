@@ -1,0 +1,35 @@
+deutsch = lambda(uf){
+
+	hadamard = [[(1/sqrt(2)) (1/sqrt(2))]
+				[(1/sqrt(2)) (0 - (1/sqrt(2)))]]
+
+	identity = [[1 0]
+				[0 1]]
+
+	state = tensor([1 0] [0 1])
+
+	hh = tensor(hadamard hadamard)
+
+	hi = tensor(hadamard identity)
+
+	keta = apply(hh state)
+
+	ketb = apply(uf keta)
+
+	ketc = apply(hi ketb)
+
+	measure(ketc)
+}
+
+ufconst=[[0 1 0 0]
+		 [1 0 0 0]
+		 [0 0 1 0]
+		 [0 0 0 1]]
+
+ufbal = [[1 0 0 0]
+		[0 1 0 0]
+		[0 0 1 0]
+		[0 0 0 1]]
+
+deutsch(ufbal)
+deutsch(ufconst)

@@ -16,6 +16,9 @@ class Mini(object):
         env['tensor'] = lambda x,y: np.kron(x,y)
         env['apply'] = lambda x,y: np.dot(x,y)
         env['measure'] = lambda x: quantumLib.measure(x)
+        env['eq'] = lambda x,y: x == y
+        env['append'] = lambda x,y : [x]+y
+        env['prepend'] = lambda x,y : y + [x]
         self.env = env
 
     def parse(self, source):
@@ -35,7 +38,7 @@ class Mini(object):
         return children
 
     def expr(self, node, children):
-        'expr = _ (func / ifelse / call / infix / lista / assignment / number / name) _'
+        'expr = _ (func / ifelse / call / infix / lista / assignment / boolLit / stringLit / number / name) _'
         return children[1][0]
 
     def func(self, node):
@@ -59,11 +62,11 @@ class Mini(object):
         return children
 
     def ifelse(self, node):
-        'ifelse = "if" expr "then" expr "else" expr'
-        _, cond, _, cons, _, alt = node
-        return self.eval(cons) if self.eval(cond) else self.eval(alt)
+        'ifelse = "if" _ "(" expr ")" "{" expr* "}" _ "else" _ "{" expr* "}" '
+        _, _, _, cond, _, _, cons, _ , _ , _ , _ , _, alt, _ = node
+        return self.eval(cons)[-1] if self.eval(cond) else self.eval(alt)[-1] #ksana, girna thn teleutea expr panta
 
-    def call(self, node, children):
+    def call(self, node, children): #na valo kommata anamesa! how to? opos to kana sthn valentine! (argument1, *(, argumentsExtra)* <- optional)
         'call = name "(" expr* _ ")"'
         name, _, arguments, _ , _= children
         return name(*arguments)
@@ -84,11 +87,22 @@ class Mini(object):
         self.env[lvalue] = expr
         return expr
 
-    def lvalue(self, node, children):
+    def lvalue(self, node, children): #make that 'lvalue = ~"[a-z0-9]+" _' if you want variable/func names to have alphanumeric instead
         'lvalue = ~"[a-z]+" _'
         return node.text.strip()
 
-    def name(self, node, children):
+    def boolLit(self, node, children):
+        'boolLit = _("#t" / "#f")_'
+        if (node.text == "#t"):
+            return True
+        else:
+            return False
+        
+    def stringLit(self, node, children):
+        'stringLit = "\\"" ~"[a-z 0-9 ! # $ ?]*" "\\"" '
+        return str(node.text[1:-1])
+    
+    def name(self, node, children): #make that 'name = ~"[a-z0-9]+" _' if you want variable/func names to have alphanumeric instead
         'name = ~"[a-z]+" _'
         return self.env.get(node.text.strip(), -1)
 
