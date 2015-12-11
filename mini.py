@@ -1,29 +1,18 @@
 import operator as op
 import math, quantumLib
 import numpy as np
+import re
 from parsimonious.grammar import Grammar
 
 
-class Mini(object):
+class QImp(object):
 
     def __init__(self, env={}):
-        env['sum'] = lambda *args: sum(args)
-        env['sqrt'] = lambda x: math.sqrt(x)
-        env['print'] = lambda *x: print(*x)
-        env['car'] = lambda x: myCar(x)
-        env['cdr'] = lambda x: myCdr(x)
-        env['map'] = lambda x,y: list(map(x,y))
-        env['tensor'] = lambda x,y: np.kron(x,y)
-        env['apply'] = lambda x,y: np.dot(x,y)
-        env['measure'] = lambda x: quantumLib.measure(x)
-        env['eq'] = lambda x,y: x == y
-        env['append'] = lambda x,y : [x]+y
-        env['prepend'] = lambda x,y : y + [x]
         self.env = env
+        defaultEnf(env)
 
     def parse(self, source):
-        grammar = '\n'.join(v.__doc__ for k, v in vars(self.__class__).items()
-                      if '__' not in k and hasattr(v, '__doc__') and v.__doc__)
+        grammar = self.grammarFromDocStr()
         return Grammar(grammar)['program'].parse(source)
 
     def eval(self, source):
@@ -33,24 +22,41 @@ class Mini(object):
             return method(node)
         return method(node, [self.eval(n) for n in node])
 
+    def grammarFromDocStr(self):
+        #concat docstrings to generate grammar. careful: only visitor methods must have docstrings, and these must be grammar rules
+        grammar = '\n'.join(v.__doc__ for k, v in vars(self.__class__).items()
+                          if '__' not in k and hasattr(v, '__doc__') and v.__doc__)
+        return grammar
+        
     def program(self, node, children):
         'program = expr*'
         return children
 
     def expr(self, node, children):
-        'expr = _ (func / ifelse / call / infix / lista / assignment / boolLit / stringLit / number / name) _'
+        'expr = _ (func / ifelse / call / infixCall/ infix / lista / assignment / boolLit / stringLit / number / name) _'
         return children[1][0]
 
-    def func(self, node):
-        'func = "lambda" "(" parameters ")" "{" expr* "}"'
-        _, _, params, _, _, expr, _ = node
-        params = list(map(self.eval, params))
+    def func (self, node):
+        'func = "lambda" "(" lvalue ((sep lvalue)*)? ")" "{" expr* "}" ( "(" expr* ")" )?'
+        _, _, param1, params, _, _, expr, _ , app = node
+        param1 = self.eval(param1)
+        paramRest = list(map(self.eval, params))
+        listOfParams = []
+        listOfParams.append(param1)
+        for item in paramRest[0]:
+            listOfParams.append(item[1])
         def func(*args):
             #for n,item in enumerate(args):
              #   print(n,item,params[n])
-            env = dict(list(self.env.items()) + list(zip(params, args)))
-            return Mini(env).eval(expr)[-1] #return the last thing that was evaluated!
-        return func
+            env = dict(list(self.env.items()) + list(zip(listOfParams, args)))
+            return QImp(env).eval(expr)[-1] #return the last thing that was evaluated!
+        if (app.text): #in case of application (must find a better way to check for app than just checking the .text field :P)
+            arg = self.eval(app)
+            return (func(arg[0][1][0]))
+            #[0] because arg returns [[item]] (ie a nsted list)
+            #[1] because arg[0] returns [[],[item],[]] (the first and last [] are the parens)
+            #[0] because arg[0][1] returns [item], we want the item itself and not a list with the item
+        return func 
 
     def lista(self, node, children):
         'lista = "[" expr* "]"'
@@ -67,14 +73,26 @@ class Mini(object):
         return self.eval(cons)[-1] if self.eval(cond) else self.eval(alt)[-1] #ksana, girna thn teleutea expr panta
 
     def call(self, node, children): #na valo kommata anamesa! how to? opos to kana sthn valentine! (argument1, *(, argumentsExtra)* <- optional)
-        'call = name "(" expr* _ ")"'
-        name, _, arguments, _ , _= children
-        return name(*arguments)
+        'call = name "(" expr ((sep expr)*)? ")"'
+        name, _, argument1, arguments, _= children
+        returner = []
+        returner.append(argument1)
+        for item in arguments[0]:
+            returner.append(item[1])
+        return name(*returner)
 
     def infix(self, node, children):
         'infix = "(" expr operator expr ")"'
         _, expr1, operator, expr2, _ = children
         return operator(expr1, expr2)
+
+    def infixCall(self, node, children): #calling binary operators in infix style: (x f y)
+        'infixCall = "(" expr name expr ")"'
+        _, argument1, name, argument2, _= children
+        returner = []
+        returner.append(argument1)
+        returner.append(argument2)
+        return name(*returner)
 
     def operator(self, node, children):
         'operator = "+" / "-" / "*" / "/"'
@@ -99,7 +117,7 @@ class Mini(object):
             return False
         
     def stringLit(self, node, children):
-        'stringLit = "\\"" ~"[a-z 0-9 ! # $ ?]*" "\\"" '
+        'stringLit = "\\"" ~"[a-z A-Z 0-9 ! # $ ?]*" "\\"" '
         return str(node.text[1:-1])
     
     def name(self, node, children): #make that 'name = ~"[a-z0-9]+" _' if you want variable/func names to have alphanumeric instead
@@ -107,11 +125,17 @@ class Mini(object):
         return self.env.get(node.text.strip(), -1)
 
     def number(self, node, children):
-        'number = ~"[0-9]+"'
+        'number = ~"[0-9.]+"'
+        if re.match("^\d+?\.\d+?$", node.text) is not None: #check if node.text is of format digit.digit (ie a float)
+            return float(node.text)
         return int(node.text)
 
     def _(self, node, children):
         '_ = ~"\s*"'
+
+    def sep(self,node,children):
+        'sep = _ "," _ '
+    
 
 def myCar(l):
     if isinstance(l,list):
@@ -126,7 +150,22 @@ def myCdr(l):
         return []
 
 
-with open ("test.qimp", "r") as myfile:
-    a = Mini()
+def defaultEnf(env):
+    env['sum'] = lambda *args: sum(args)
+    env['sqrt'] = lambda x: math.sqrt(x)
+    env['print'] = lambda *x: print(*x)
+    env['car'] = lambda x: myCar(x)
+    env['cdr'] = lambda x: myCdr(x)
+    env['map'] = lambda x,y: list(map(x,y))
+    env['tensor'] = lambda x,y: np.kron(x,y)
+    env['apply'] = lambda x,y: np.dot(x,y)
+    env['measure'] = lambda x: quantumLib.measure(x)
+    env['eq'] = lambda x,y: x == y
+    env['append'] = lambda x,y : [x]+y
+    env['prepend'] = lambda x,y : y + [x]
+
+
+with open ("test.qimp", "r",encoding="utf8") as myfile:
+    a = QImp()
     kek  = a.eval(myfile.read())
     #print("Global env:",a.env)

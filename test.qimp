@@ -1,18 +1,9 @@
-printer = lambda(x){
-	if(eq(x 0)){
-		[]
-	}
-	else{
-		prepend(x printer((x - 1)))
-	}
+a = lambda(x){
+	lambda(y){
+		(y + 5)
+	}(x)
 }
 
-print(printer(5))
 
 
-if(#f){
-	print(1)
-}
-else{
-	print("f is false!")
-}
+print(a(2))

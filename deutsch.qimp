@@ -6,17 +6,17 @@ deutsch = lambda(uf){
 	identity = [[1 0]
 				[0 1]]
 
-	state = tensor([1 0] [0 1])
+	state = ([1 0] tensor [0 1])
 
-	hh = tensor(hadamard hadamard)
+	hh = (hadamard tensor hadamard)
 
-	hi = tensor(hadamard identity)
+	hi = (hadamard tensor identity)
 
-	keta = apply(hh state)
+	keta = apply(hh, state)
 
-	ketb = apply(uf keta)
+	ketb = apply(uf, keta)
 
-	ketc = apply(hi ketb)
+	ketc = apply(hi, ketb)
 
 	measure(ketc)
 }

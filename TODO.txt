@@ -1,0 +1,13 @@
+
+TODO: 
+add a function ( getElement(list,index)) 
+or special grammar (list[index])  
+
+to access list elements at will 
+---------------------
+Actually no, I think i'll keep lists immutable.
+So i think the function is better.
+list[index] with immutable lists is awkward, it would return a new list/element
+but it looks like you are accessing the same list
+The function is much better looking, you know you are getting an element and not modifying a list
+
