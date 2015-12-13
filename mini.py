@@ -33,7 +33,7 @@ class QImp(object):
         return children
 
     def expr(self, node, children):
-        'expr = _ (func / ifelse / call / infixCall/ infix / lista / assignment / boolLit / stringLit / number / name) _'
+        'expr = _ (func / ifelse / call / infixCall / lista / assignment / boolLit / stringLit / number / name) _'
         return children[1][0]
 
     def func (self, node):
@@ -81,11 +81,6 @@ class QImp(object):
             returner.append(item[1])
         return name(*returner)
 
-    def infix(self, node, children):
-        'infix = "(" expr operator expr ")"'
-        _, expr1, operator, expr2, _ = children
-        return operator(expr1, expr2)
-
     def infixCall(self, node, children): #calling binary operators in infix style: (x f y)
         'infixCall = "(" expr name expr ")"'
         _, argument1, name, argument2, _= children
@@ -94,14 +89,11 @@ class QImp(object):
         returner.append(argument2)
         return name(*returner)
 
-    def operator(self, node, children):
-        'operator = "+" / "-" / "*" / "/"' 
-        operators = {'+': op.add, '-': op.sub, '*': op.mul, '/': op.truediv}
-        return operators[node.text]
-
     def assignment(self, node, children):
-        'assignment = lvalue "=" expr'
-        lvalue, _, expr = children
+        'assignment = "let" _ lvalue "=" expr'
+        _,_,lvalue, _, expr = children
+        if lvalue in self.env:
+            raise Exception("Duplicate definitions for" + ": " + lvalue)
         self.env[lvalue] = expr
         return expr
 
@@ -121,7 +113,7 @@ class QImp(object):
         return str(node.text[1:-1])
     
     def name(self, node, children): #make that 'name = ~"[a-z0-9]+" _' if you want variable/func names to have alphanumeric instead
-        'name = ~"[a-z⊗·]+" _'
+        'name = ~"[a-z⊗·+-/*]+" _'
         return self.env.get(node.text.strip(), -1)
 
     def number(self, node, children):
@@ -165,7 +157,16 @@ def defaultEnf(env):
     env['prepend'] = lambda x,y : y + [x]
     env['⊗'] = lambda x,y: np.kron(x,y)
     env['·'] = lambda x,y: np.dot(x,y)
-    
+    env["-"] = lambda x,y: x - y    
+    env["+"] = lambda x,y: x + y
+    env["*"] = lambda x,y: x * y
+    env["/"] = lambda x,y: x / y
+
+def repl():
+    qImpInstance = QImp()
+    while True:
+        print(qImpInstance.eval(input(">>>")))
+
 with open ("test.qimp", "r",encoding="utf8") as myfile:
     a = QImp()
     kek  = a.eval(myfile.read())
