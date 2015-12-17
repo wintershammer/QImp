@@ -4,43 +4,37 @@ let genBasisVec = lambda(dim, index){
 	}
 	else{
 		if((dim = index)){
-			prepend(1,genBasisVec((dim - 1),index))
+			prepend(1,
+					genBasisVec((dim - 1),index))
 		}
 		else{
-			prepend(0,genBasisVec((dim - 1),index))
+			prepend(0,
+					genBasisVec((dim - 1),index))
 		}
 	}
 }
 
+let genBasis = lambda(dim,counter){
+	if((counter = dim)){
+		[genBasisVec(dim,counter)]
+	}
+	else{
+		append(genBasisVec(dim,counter),
+				genBasis(dim,(counter + 1)))
+	}
+}
 
 let generateMatrix = lambda(operator,basis){
-	if(null?(cdr(basis))){
-		[ operator(car(basis)) ]
+	if(null? . cdr(basis)){
+		[operator . car(basis)]
 	}
 	else{
-		append(car(basis) , generateMatrix(operator , cdr(basis)))
+		append(operator . car (basis),
+			   generateMatrix(operator , cdr(basis)))
 	}
 }
 
-
-
-let identity = lambda(vec){
-	vec
+let generator = lambda(operator,dim){
+	let basis = genBasis((dim - 1),0)
+	generateMatrix(operator, basis)
 }
-
-let hadamard = lambda(vec){
-	let n = len(vec)
-	let superpos = (1 / sqrt(n))
-	hadH(n , superpos)
-}
-
-let hadH = lambda(dim,item){
-	if((dim = 0)){
-		[]
-	}	
-	else{
-		prepend(item , hadH( (dim - 1) , item))
-	}
-}
-
-print(hadamard([1 0]))

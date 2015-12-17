@@ -1,14 +1,30 @@
+--load generator
+--load operators
+
+
+
 let f = lambda(x){
 	(x + x)
 }
 
 let y = lambda(x){
-	(x + 30)
+	(x * x)
 }
+
+
+let l = lambda(x){
+	(0 - x)
+}
+
 
 let z = lambda(x){
-	f . y(x)
+	l . y . f (x)
 }
 
+let a = z(1)
 
-print(z(1))
+print(a)
+
+print(generator(hadamard,2))
+print(generator(identity,4))
+print(generator(inverse,4))

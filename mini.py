@@ -33,7 +33,7 @@ class QImp(object):
         return children
 
     def expr(self, node, children):
-        'expr = _ (func / ifelse / call / comp / infixCall / lista / assignment / boolLit / stringLit / number / name) _'
+        'expr = _ (load / func / ifelse / call / comp / infixCall / lista / assignment / boolLit / stringLit / number / name) _'
         return children[1][0]
 
     def func (self, node):
@@ -89,7 +89,7 @@ class QImp(object):
         returner.append(argument2)
         return name(*returner)
 
-    def assignment(self, node, children):
+    def assignment(self, node, children): 
         'assignment = "let" _ lvalue "=" expr'
         _,_,lvalue, _, expr = children
         if lvalue in self.env:
@@ -108,14 +108,24 @@ class QImp(object):
         else:
             return False
         
-    def comp(self, node, children):
-        'comp = name ((compsep name)+)? _ "(" expr* ")"'
-        nameO, nameR, _ , _, expr , _ = children
-        initial = nameO(*expr)    
-        for fun in nameR[0]:
-            initial = fun[1](initial)
-        return initial
+    def comp(self, node, children): 
+        'comp = name (compsep name)+ _ "(" expr* ")"'
+        nameO, nameR, _ , _, expr , _ = children   
+        for index,fun in enumerate(reversed(nameR)): #remember: the first function to be applied in a composition is the innermost one (thats why we reverse the list)
+            if (index == 0): #initialise: apply the innermost function to the expression
+                value = fun[1](*expr) 
+            else: 
+                value = fun[1](value) #apply the next fun in the queue
+        return nameO(value) #apply the outermost func and return
 
+
+    def load(self, node, children):
+        'load = "--load" _ lvalue '
+        _,_,filename = children
+        temp = QImp()
+        with open ( (filename + ".qimp" ), "r",encoding="utf8") as myfile:
+            temp.eval(myfile.read())
+            self.env = temp.env.copy()
         
     def stringLit(self, node, children):
         'stringLit = "\\"" ~"[a-z A-Z 0-9 ! # $ ?]*" "\\"" '
@@ -153,11 +163,20 @@ def myCdr(l):
     else:
         return []
 
+def prettyPrint(x):
+    if (isinstance(x,list)): #if our item to print is a list, chcek to see if its a list of lists
+        if any(isinstance(el, list) for el in x): #if its a list of lists print it like a matrix
+            print("---Matrix---")
+            for item in x:
+                print(item)
+    else:
+        print(x)
+
 
 def defaultEnf(env):
     env['sum'] = lambda *args: sum(args)
     env['sqrt'] = lambda x: math.sqrt(x)
-    env['print'] = lambda *x: print(*x)
+    env['print'] = lambda *x: prettyPrint(*x)
     env['car'] = lambda x: myCar(x)
     env['cdr'] = lambda x: myCdr(x)
     env['map'] = lambda x,y: list(map(x,y))
@@ -177,13 +196,14 @@ def defaultEnf(env):
     env["len"] = lambda x: len(x)
     env["null?"] = lambda x: len(x) == 0
     env["sqrt"] = lambda x: math.sqrt(x)
+    env["reverse"] = lambda x : list(reversed(x))
 
 def repl():
     qImpInstance = QImp()
     while True:
         print(qImpInstance.eval(input(">>>")))
 
-with open ("generator.qimp", "r",encoding="utf8") as myfile:
+with open ("test.qimp", "r",encoding="utf8") as myfile:
     a = QImp()
     kek  = a.eval(myfile.read())
     #print("Global env:",a.env)
