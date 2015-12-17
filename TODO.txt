@@ -11,3 +11,19 @@ list[index] with immutable lists is awkward, it would return a new list/element
 but it looks like you are accessing the same list
 The function is much better looking, you know you are getting an element and not modifying a list
 
+------
+
+PARTIAL APPLICATION !
+
+----
+
+maybe remove () from if?
+
+if #t
+
+if eq(1,2)
+
+if (1 = 2)
+
+
+might look better

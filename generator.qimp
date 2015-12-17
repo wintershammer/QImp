@@ -24,17 +24,7 @@ let genBasis = lambda(dim,counter){
 	}
 }
 
-let generateMatrix = lambda(operator,basis){
-	if(null? . cdr(basis)){
-		[operator . car(basis)]
-	}
-	else{
-		append(operator . car (basis),
-			   generateMatrix(operator , cdr(basis)))
-	}
-}
-
-let generator = lambda(operator,dim){
+let generateMatrix = lambda(operator,dim){
 	let basis = genBasis((dim - 1),0)
-	generateMatrix(operator, basis)
+	map(operator,basis)
 }

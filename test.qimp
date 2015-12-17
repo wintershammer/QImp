@@ -25,6 +25,6 @@ let a = z(1)
 
 print(a)
 
-print(generator(hadamard,2))
-print(generator(identity,4))
-print(generator(inverse,4))
+print(generateMatrix(hadamard,2))
+print(generateMatrix(identity,4))
+print(generateMatrix(inverse,4))

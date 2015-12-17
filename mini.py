@@ -1,5 +1,5 @@
 import operator as op
-import math, quantumLib
+import math, quantumLib, functools
 import numpy as np
 import re
 from parsimonious.grammar import Grammar
@@ -180,6 +180,7 @@ def defaultEnf(env):
     env['car'] = lambda x: myCar(x)
     env['cdr'] = lambda x: myCdr(x)
     env['map'] = lambda x,y: list(map(x,y))
+    env['fold'] = lambda x,y : functools.reduce(x,y),
     env['tensor'] = lambda x,y: np.kron(x,y)
     env['apply'] = lambda x,y: np.dot(x,y)
     env['measure'] = lambda x: quantumLib.measure(x)
