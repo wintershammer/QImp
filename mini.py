@@ -33,7 +33,7 @@ class QImp(object):
         return children
 
     def expr(self, node, children):
-        'expr = _ (func / ifelse / call / infixCall / lista / assignment / boolLit / stringLit / number / name) _'
+        'expr = _ (func / ifelse / call / comp / infixCall / lista / assignment / boolLit / stringLit / number / name) _'
         return children[1][0]
 
     def func (self, node):
@@ -98,7 +98,7 @@ class QImp(object):
         return expr
 
     def lvalue(self, node, children): #make that 'lvalue = ~"[a-z0-9]+" _' if you want variable/func names to have alphanumeric instead
-        'lvalue = ~"[a-z]+" _'
+        'lvalue = ~"[a-zA-Z?]+" _'
         return node.text.strip()
 
     def boolLit(self, node, children):
@@ -108,12 +108,21 @@ class QImp(object):
         else:
             return False
         
+    def comp(self, node, children):
+        'comp = name ((compsep name)+)? _ "(" expr* ")"'
+        nameO, nameR, _ , _, expr , _ = children
+        initial = nameO(*expr)    
+        for fun in nameR[0]:
+            initial = fun[1](initial)
+        return initial
+
+        
     def stringLit(self, node, children):
         'stringLit = "\\"" ~"[a-z A-Z 0-9 ! # $ ?]*" "\\"" '
         return str(node.text[1:-1])
     
     def name(self, node, children): #make that 'name = ~"[a-z0-9]+" _' if you want variable/func names to have alphanumeric instead
-        'name = ~"[a-z⊗·+-/*]+" _'
+        'name = ~"[a-zA-Z⊗·+\-/*=?]+"'
         return self.env.get(node.text.strip(), -1)
 
     def number(self, node, children):
@@ -127,6 +136,9 @@ class QImp(object):
 
     def sep(self,node,children):
         'sep = _ "," _ '
+
+    def compsep(self,node,children):
+        'compsep = _"."_'
     
 
 def myCar(l):
@@ -161,13 +173,17 @@ def defaultEnf(env):
     env["+"] = lambda x,y: x + y
     env["*"] = lambda x,y: x * y
     env["/"] = lambda x,y: x / y
+    env["="] = lambda x,y: x == y
+    env["len"] = lambda x: len(x)
+    env["null?"] = lambda x: len(x) == 0
+    env["sqrt"] = lambda x: math.sqrt(x)
 
 def repl():
     qImpInstance = QImp()
     while True:
         print(qImpInstance.eval(input(">>>")))
 
-with open ("test.qimp", "r",encoding="utf8") as myfile:
+with open ("generator.qimp", "r",encoding="utf8") as myfile:
     a = QImp()
     kek  = a.eval(myfile.read())
     #print("Global env:",a.env)

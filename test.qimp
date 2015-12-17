@@ -1,14 +1,14 @@
-a = lambda(x){
-	lambda(y){
-		(y + 5)
-	}(x)
+let f = lambda(x){
+	(x + x)
+}
+
+let y = lambda(x){
+	(x + 30)
+}
+
+let z = lambda(x){
+	f . y(x)
 }
 
 
-
-print(a(2))
-
-
-
-print(([1 0] ⊗ [0 1]))
-print(([1 0] · [0 1]))
+print(z(1))
