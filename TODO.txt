@@ -15,6 +15,13 @@ The function is much better looking, you know you are getting an element and not
 
 PARTIAL APPLICATION !
 
+if inputs < numberOfArguments:
+	return function(remaining arguments): body
+	where the functions' env has been updated with new bindings
+
+hmmm 
+
+or just delete some arguments from the function's list of arguments and update its env with new bindings
 ----
 
 maybe remove () from if?

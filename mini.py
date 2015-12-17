@@ -45,11 +45,8 @@ class QImp(object):
         listOfParams.append(param1)
         for item in paramRest[0]:
             listOfParams.append(item[1])
-        def func(*args):
-            #for n,item in enumerate(args):
-             #   print(n,item,params[n])
-            env = dict(list(self.env.items()) + list(zip(listOfParams, args)))
-            return QImp(env).eval(expr)[-1] #return the last thing that was evaluated!
+
+        func = Function(self.env, listOfParams, expr)
         if (app.text): #in case of application (must find a better way to check for app than just checking the .text field :P)
             arg = self.eval(app)
             return (func(arg[0][1][0]))
@@ -149,7 +146,24 @@ class QImp(object):
 
     def compsep(self,node,children):
         'compsep = _"."_'
-    
+
+
+class Function(object):
+    def __init__(self,env,parameters,body):
+        self.env = env
+        self.parameters = parameters
+        self.body = body
+
+
+    def __call__(self,*args):
+        
+        if(len(args) < len(self.parameters)):
+            env1 = dict(list(self.env.items()) + list(zip(self.parameters[:len(args)], args)))
+            return Function(env1,self.parameters[len(args):],self.body)
+        env1 = dict(list(self.env.items()) + list(zip(self.parameters, args)))
+        return QImp(env1).eval(self.body)[-1]    
+        
+        
 
 def myCar(l):
     if isinstance(l,list):
