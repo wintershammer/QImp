@@ -37,7 +37,7 @@ class QImp(object):
         return children[1][0]
 
     def func (self, node):
-        'func = "lambda" "(" lvalue ((sep lvalue)*)? ")" "{" expr* "}" ( "(" expr* ")" )?'
+        'func = "lambda" "(" lvalue ((sep lvalue)*)? ")" "{" expr* "}" ( "(" expr* ((sep expr)*)? ")" )?'
         _, _, param1, params, _, _, expr, _ , app = node
         param1 = self.eval(param1)
         paramRest = list(map(self.eval, params))
@@ -49,10 +49,14 @@ class QImp(object):
         func = Function(self.env, listOfParams, expr)
         if (app.text): #in case of application (must find a better way to check for app than just checking the .text field :P)
             arg = self.eval(app)
-            return (func(arg[0][1][0]))
-            #[0] because arg returns [[item]] (ie a nsted list)
-            #[1] because arg[0] returns [[],[item],[]] (the first and last [] are the parens)
+            arguments = [arg[0][1][0]]
+            for item in arg[0][2][0]:
+               arguments.append(item[1])
+            return(func(*arguments))
+            #[0] because arg returns [[[],[item],[itemsOptional],[]]] (a nsted list)
+            #[1] because arg[0] returns [[],[item], [itemsOptional], []] (the first and last [] are the parens)
             #[0] because arg[0][1] returns [item], we want the item itself and not a list with the item
+            #same for [0][2][0]
         return func 
 
     def lista(self, node, children):
