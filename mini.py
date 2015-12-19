@@ -194,7 +194,8 @@ def prettyPrint(x):
 def defaultEnf(env):
     env['sum'] = lambda *args: sum(args)
     env['sqrt'] = lambda x: math.sqrt(x)
-    env['print'] = lambda *x: prettyPrint(*x)
+    env['print'] = lambda *x: print(*x)
+    env['pprint'] = lambda *x: prettyPrint(*x)
     env['car'] = lambda x: myCar(x)
     env['cdr'] = lambda x: myCdr(x)
     env['map'] = lambda x,y: list(map(x,y))
