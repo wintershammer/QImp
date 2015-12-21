@@ -1,28 +1,9 @@
+ADD UNARY OPERATORS! (- 5), (hermitianConj [1 0]) etc --- DONE
+ADD COMPLEX NUMBERS! 1+0i  --- DONE
+Also add parsing for negative numbers: -5 , -3 etc instead of having to use unary operators all the time  --- DONE
 
-TODO: 
-add a function ( getElement(list,index)) 
-or special grammar (list[index])  
 
-to access list elements at will 
----------------------
-Actually no, I think i'll keep lists immutable.
-So i think the function is better.
-list[index] with immutable lists is awkward, it would return a new list/element
-but it looks like you are accessing the same list
-The function is much better looking, you know you are getting an element and not modifying a list
-
-------
-
-PARTIAL APPLICATION !
-
-if inputs < numberOfArguments:
-	return function(remaining arguments): body
-	where the functions' env has been updated with new bindings
-
-hmmm 
-
-or just delete some arguments from the function's list of arguments and update its env with new bindings
-----
+=================
 
 maybe remove () from if?
 
@@ -34,3 +15,15 @@ if (1 = 2)
 
 
 might look better
+
+------
+
+implement pattern matching?
+this might be a better/cleaner structure than if-multiple elifs-else 
+
+possible syntax: ? 
+let f = lambda(b){
+ 	 match b with
+  		| true -> 1
+  		| false -> 0
+	}

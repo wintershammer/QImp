@@ -33,7 +33,7 @@ class QImp(object):
         return children
 
     def expr(self, node, children):
-        'expr = _ (load / func / ifelse / call / comp / infixCall / lista / assignment / boolLit / stringLit / number / name) _'
+        'expr = _ (load / func / ifelse / call / comp / infixCall / prefixCall/  lista / assignment / boolLit / stringLit / complexLit / floatLit / intLit / name) _'
         return children[1][0]
 
     def func (self, node):
@@ -90,6 +90,11 @@ class QImp(object):
         returner.append(argument2)
         return name(*returner)
 
+    def prefixCall(self, node, children): #calling unary operators prefix style: (f x) -- potentially could allow any arity, but i don't see the use for lisp-style function calls
+        'prefixCall = "(" name expr ")"'
+        _, name, argument, _= children
+        return name(argument)
+
     def assignment(self, node, children): 
         'assignment = "let" _ lvalue "=" expr'
         _,_,lvalue, _, expr = children
@@ -136,11 +141,21 @@ class QImp(object):
         'name = ~"[a-zA-Z⊗·+\-/*=?]+"'
         return self.env.get(node.text.strip(), -1)
 
-    def number(self, node, children):
-        'number = ~"[0-9.]+"'
-        if re.match("^\d+?\.\d+?$", node.text) is not None: #check if node.text is of format digit.digit (ie a float)
-            return float(node.text)
+    def numeral(self, node, children): #helper parser, matches numeral literals
+        'numeral = ~"[0-9]+"'
+
+    def intLit(self, node, children):
+        'intLit = ("-")? numeral'
         return int(node.text)
+    
+    def floatLit(self,node,children):
+        'floatLit = ("-")? numeral "." numeral '
+        return float(node.text)
+
+    def complexLit(self, node, children): #bit of a mess: complexLit = optional "-", (float or integer), "+" or "-", (float or integer)
+        'complexLit = ("+"/"-")? (numeral ("." numeral)?) ("+"/"-") (numeral ("." numeral)?) "i"'
+        return complex(node.text.replace("i","j"))
+
 
     def _(self, node, children):
         '_ = ~"\s*"'
