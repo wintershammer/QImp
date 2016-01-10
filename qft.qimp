@@ -1,0 +1,37 @@
+--load generator
+
+let omega = lambda(jj,k,N){
+	exp((fold(*, [2 pi 0+1i jj k]) / N))
+}
+
+let qfSum = lambda(limit,vec,index,N){
+	if ((limit = 0)){
+		0
+	}
+	else {
+		((omega(index,limit,N) * car(vec)) +
+		qfSum((limit - 1), cdr(vec), index, N))
+	}
+}
+
+let outer = lambda(vec,index,N){
+	if((N = index)){
+		[]
+	}
+	else{
+		append(((1 / sqrt(N)) * qfSum(N,vec,index,N)),
+				outer(vec,(index + 1),N))
+	}
+
+}
+
+let qft = lambda(vec){
+	let N = len(vec)
+	outer(vec,0,N)
+}
+
+let qftGen = lambda(dim){
+	transpose(generateMatrix(qft,dim))
+}
+
+pprint(qftGen(4))

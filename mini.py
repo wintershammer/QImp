@@ -1,5 +1,5 @@
 import operator as op
-import math, quantumLib, functools
+import math, quantumLib, oracleLib, functools
 import numpy as np
 import re
 from parsimonious.grammar import Grammar
@@ -232,13 +232,18 @@ def defaultEnf(env):
     env["null?"] = lambda x: len(x) == 0
     env["sqrt"] = lambda x: math.sqrt(x)
     env["reverse"] = lambda x : list(reversed(x))
+    env["fold"] = lambda x,y : functools.reduce(x,y)
+    env["pi"] = math.pi
+    env["exp"] = np.exp #should add cleanExp like quantum parethesis
+    env["oracle"] = lambda fun: oracleLib.generateOracle(fun)
+    env["transpose"] = lambda x: (quantumLib.ctransp(x)).tolist();
 
 def repl():
     qImpInstance = QImp()
     while True:
         print(qImpInstance.eval(input(">>>")))
 
-with open ("test.qimp", "r",encoding="utf8") as myfile:
+with open ("qft.qimp", "r",encoding="utf8") as myfile:
     a = QImp()
     kek  = a.eval(myfile.read())
     #print("Global env:",a.env)

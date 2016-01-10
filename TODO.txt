@@ -27,3 +27,11 @@ let f = lambda(b){
   		| true -> 1
   		| false -> 0
 	}
+
+
+-----------
+
+Na metafero tous generators sthn python anti ths qimp,
+giati otan tous trexo mesa sthn qimp pefto s max recursion
+exceeded. Kalitera na tous trexo natively sthn python.
+(alla krata ofc ton kodika gia tous generatoors kai sthn qimp)

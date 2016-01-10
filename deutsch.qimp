@@ -1,35 +1,23 @@
-deutsch = lambda(uf){
+--load generator
+--load operators
 
-	hadamard = [[(1/sqrt(2)) (1/sqrt(2))]
-				[(1/sqrt(2)) (0 - (1/sqrt(2)))]]
 
-	identity = [[1 0]
-				[0 1]]
 
-	state = ([1 0] tensor [0 1])
+let H = generateMatrix(hadamard,2)
+let I = generateMatrix(identity,2)
 
-	hh = (hadamard tensor hadamard)
 
-	hi = (hadamard tensor identity)
+let fc = [[1 0] [1 0]]
+let fb = [[0 1] [1 0]]
 
-	keta = apply(hh, state)
 
-	ketb = apply(uf, keta)
-
-	ketc = apply(hi, ketb)
-
-	measure(ketc)
+let deutsch = lambda(f){
+	let Uf = oracle(f)
+	let state = ([1 0]  ⊗ [0 1])
+	measure(((H ⊗ I) · (Uf · ((H ⊗ H) · state))))
 }
 
-ufconst=[[0 1 0 0]
-		 [1 0 0 0]
-		 [0 0 1 0]
-		 [0 0 0 1]]
-
-ufbal = [[1 0 0 0]
-		[0 1 0 0]
-		[0 0 1 0]
-		[0 0 0 1]]
-
-deutsch(ufbal)
-deutsch(ufconst)
+pprint(oracle(fc))
+pprint(oracle(fb))
+pprint(deutsch(fc))
+pprint(deutsch(fb))
