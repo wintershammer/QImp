@@ -1,0 +1,7 @@
+let A = [[2 0] [0 -1]]
+
+let B = [ [0 1 2] [0 0 -1] [0 0 0]]
+
+
+print(expm(A))
+print(expm(B))

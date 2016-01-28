@@ -2,6 +2,7 @@ import operator as op
 import math, quantumLib, oracleLib, functools
 import numpy as np
 import re
+import scipy.linalg as scipyAlg
 from parsimonious.grammar import Grammar
 
 
@@ -236,6 +237,8 @@ def defaultEnf(env):
     env["pi"] = math.pi
     env["exp"] = np.exp #should add cleanExp like quantum parethesis
     env["oracle"] = lambda fun: oracleLib.generateOracle(fun)
+    env["expm"] = lambda matrix: list(scipyAlg.expm(matrix))
+    env["logm"] = lambda matrix: list(scipyAlg.logm(matrix))
     env["transpose"] = lambda x: (quantumLib.ctransp(x)).tolist();
 
 def repl():
@@ -243,7 +246,7 @@ def repl():
     while True:
         print(qImpInstance.eval(input(">>>")))
 
-with open ("qft.qimp", "r",encoding="utf8") as myfile:
+with open ("testExpo.qimp", "r",encoding="utf8") as myfile:
     a = QImp()
     kek  = a.eval(myfile.read())
     #print("Global env:",a.env)
