@@ -218,16 +218,17 @@ def defaultEnf(env):
     env['fold'] = lambda x,y : functools.reduce(x,y),
     env['tensor'] = lambda x,y: np.kron(x,y)
     env['apply'] = lambda x,y: np.dot(x,y)
+    env['outer'] = lambda x,y: np.outer(x,y)
     env['measure'] = lambda x: quantumLib.measure(x)
     env['eq'] = lambda x,y: x == y
     env['append'] = lambda x,y : [x]+y
     env['prepend'] = lambda x,y : y + [x]
     env['⊗'] = lambda x,y: np.kron(x,y)
-    env['·'] = lambda x,y: np.dot(x,y)
-    env["-"] = lambda x,y: x - y    
-    env["+"] = lambda x,y: x + y
-    env["*"] = lambda x,y: x * y
-    env["/"] = lambda x,y: x / y
+    env['·'] = lambda x,y: np.dot(x,y) 
+    env["-"] = lambda x,y: np.subtract(x,y) #numpy add/sub/mult/div works like regular for matrix AND numbers! no need for addMatrix etc
+    env["+"] = lambda x,y: np.add(x,y)
+    env["*"] = lambda x,y: np.multiply(x,y)
+    env["/"] = lambda x,y: np.divide(x,y)
     env["="] = lambda x,y: x == y
     env["len"] = lambda x: len(x)
     env["null?"] = lambda x: len(x) == 0
@@ -246,7 +247,7 @@ def repl():
     while True:
         print(qImpInstance.eval(input(">>>")))
 
-with open ("testExpo.qimp", "r",encoding="utf8") as myfile:
+with open ("grover.qimp", "r",encoding="utf8") as myfile:
     a = QImp()
     kek  = a.eval(myfile.read())
     #print("Global env:",a.env)

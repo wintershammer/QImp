@@ -1,0 +1,25 @@
+--load generator
+--load operators
+
+
+let H = generateMatrix(hadamard,2)
+let I = generateMatrix(identity,4)
+let Htwo = tensor(H,H)
+
+let f = lambda(x){
+	if((x = [0 0 1 0])){
+		[0 1]
+	}
+	else{
+		[1 0]
+	}
+}
+
+let Uf = oracle(generateMatrix(f,4))
+
+
+let average = apply(Htwo,[1 0 0 0])
+
+let groverOp = 
+	((2 * outer(average,average)) - I)
+
