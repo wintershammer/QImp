@@ -4,22 +4,44 @@
 
 let H = generateMatrix(hadamard,2)
 let I = generateMatrix(identity,4)
+
 let Htwo = tensor(H,H)
 
-let f = lambda(x){
-	if((x = [0 0 1 0])){
-		[0 1]
-	}
-	else{
-		[1 0]
+let f = lambda(string){
+	lambda(x){
+		if((x = string)){
+				[0 1]
+		}
+		else{
+			[1 0]
+		}
 	}
 }
 
-let Uf = oracle(generateMatrix(f,4))
 
 
-let average = apply(Htwo,[1 0 0 0])
 
-let groverOp = 
-	((2 * outer(average,average)) - I)
+let groverIter = lambda(state,Uf,times){
+	
+	let average = apply(Htwo,[1 0 0 0])
 
+	let groverOper =  ((2 * outer(average,average)) - I)
+
+	
+	let opb = tensor(groverOper,generateMatrix(identity,2))
+
+	if((times = 0)){
+		state
+	}
+	else{
+		apply(opb,apply(Uf,state))
+	}
+}
+
+let grover = lambda(string){
+	let Uf = oracle(generateMatrix(f(string),4))
+	let initialState = apply(tensor(Htwo,H),tensor([1 0 0 0],[0 1]))
+	subsystems(groverIter(initialState,Uf,4),[2 1])
+}
+
+print(grover([1 0 0 0]))

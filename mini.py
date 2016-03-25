@@ -215,11 +215,12 @@ def defaultEnf(env):
     env['car'] = lambda x: myCar(x)
     env['cdr'] = lambda x: myCdr(x)
     env['map'] = lambda x,y: list(map(x,y))
-    env['fold'] = lambda x,y : functools.reduce(x,y),
+    env['fold'] = lambda x,y : functools.reduce(x,y)
     env['tensor'] = lambda x,y: np.kron(x,y)
     env['apply'] = lambda x,y: np.dot(x,y)
     env['outer'] = lambda x,y: np.outer(x,y)
     env['measure'] = lambda x: quantumLib.measure(x)
+    env['subsystems'] = lambda state,configuration: quantumLib.splitToSub(state,configuration)
     env['eq'] = lambda x,y: x == y
     env['append'] = lambda x,y : [x]+y
     env['prepend'] = lambda x,y : y + [x]
