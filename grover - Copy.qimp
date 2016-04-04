@@ -1,0 +1,12 @@
+TODO: FIX COMPOSITION DOT TO INCLUDE FUNCTIONS WITH MULTIPLE ARGUMENTS
+
+
+
+f . g . h (1,2,3)
+
+doesnt work
+
+
+f . g . h (1)
+
+works

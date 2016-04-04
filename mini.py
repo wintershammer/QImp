@@ -241,6 +241,8 @@ def defaultEnf(env):
     env["oracle"] = lambda fun: oracleLib.generateOracle(fun)
     env["expm"] = lambda matrix: list(scipyAlg.expm(matrix))
     env["logm"] = lambda matrix: list(scipyAlg.logm(matrix))
+    env["logTwo"] = lambda x: int(math.log(x,2))
+    env["length"] = lambda x: len(x)
     env["transpose"] = lambda x: (quantumLib.ctransp(x)).tolist();
 
 def repl():
@@ -248,7 +250,7 @@ def repl():
     while True:
         print(qImpInstance.eval(input(">>>")))
 
-with open ("grover.qimp", "r",encoding="utf8") as myfile:
+with open ("groverGeneralised.qimp", "r",encoding="utf8") as myfile:
     a = QImp()
     kek  = a.eval(myfile.read())
     #print("Global env:",a.env)

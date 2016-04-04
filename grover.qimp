@@ -41,6 +41,7 @@ let groverIter = lambda(state,Uf,times){
 let grover = lambda(string){
 	let Uf = oracle(generateMatrix(f(string),4))
 	let initialState = apply(tensor(Htwo,H),tensor([1 0 0 0],[0 1]))
+	print("WTF",initialState)
 	subsystems(groverIter(initialState,Uf,4),[2 1])
 }
 

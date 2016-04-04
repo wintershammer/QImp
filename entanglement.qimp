@@ -1,0 +1,14 @@
+--load generator
+--load operators
+
+
+let H = generateMatrix(hadamard,2)
+
+let cnot = [[1 0 0 0] [0 1 0 0] [ 0 0 0 1] [0 0 1 0]]
+
+
+let opa = tensor(H,generateMatrix(identity,2))
+
+let a = apply(cnot,apply(opa,tensor([1 0],[1 0])))
+print(a)
+print(subsystems(a,[1 1]))
