@@ -1,0 +1,23 @@
+--load generator
+--load operators
+
+
+let H = generateMatrix(hadamard,2)
+let I = generateMatrix(identity,4)
+
+let qubone = apply(H,[1 0])
+let qubtwo = [0 1]
+let state = tensor(qubone,qubtwo)
+
+let pone = [[1 1 0 0]
+			[0 0 1 1]]
+
+let ptwo = [[1 0 1 0]
+			[0 1 0 1]]
+
+print(state)
+print(sqrt(apply(pone,state)))
+print(sqrt(apply(ptwo,state)))
+subsystems(state,[1 1])
+
+

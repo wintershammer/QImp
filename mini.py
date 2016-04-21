@@ -233,7 +233,7 @@ def defaultEnf(env):
     env["="] = lambda x,y: x == y
     env["len"] = lambda x: len(x)
     env["null?"] = lambda x: len(x) == 0
-    env["sqrt"] = lambda x: math.sqrt(x)
+    env["sqrt"] = lambda x: np.sqrt(x)
     env["reverse"] = lambda x : list(reversed(x))
     env["fold"] = lambda x,y : functools.reduce(x,y)
     env["pi"] = math.pi
