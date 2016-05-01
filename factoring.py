@@ -25,4 +25,4 @@ def fac(mat):
 qu0 = [0,1]
 qu1 = [1/np.sqrt(2),1/np.sqrt(2)]
 
-fac(np.kron(qu0,qu1)) #for some reason it messes up the signs
+fac(np.kron(qu0,qu1)) #careful, it messes up the signs
