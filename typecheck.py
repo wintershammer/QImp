@@ -19,7 +19,12 @@ class App:
     def __init__(self,e1,e2): #e1 e2 (application)
         self.e1 = e1
         self.e2 = e2
+        
+class Tensor:
 
+    def __init__(self,e1,e2): #e1 e2 (application)
+        self.e1 = e1
+        self.e2 = e2
 #types
 
 Qubit = "Qubit"
@@ -33,7 +38,15 @@ class Lollipop:
 
     def __str__(self):
         return "{0} -<> {1}".format(str(self.t1),str(self.t2))
-    
+
+class Exponential:
+
+    def __init__(self,t1,t2): # t1 -<> t2
+        self.t1 = t1
+        self.t2 = t2
+
+    def __str__(self):
+        return "{0} (x) {1}".format(str(self.t1),str(self.t2))    
 # typechecking
 
 def getType(name,env):
@@ -66,15 +79,20 @@ def typecheck(item,env):
                 raise Exception("Function expecting type {0} but was given {1}".format(lamType.t1,argType))
         else:
                 raise Exception("Non-function application")
+            
+    elif isinstance(item,Tensor):
+        lType = typecheck(item.e1,env)
+        rType = typecheck(item.e2,env)
+        return Exponential(lType,rType)
+        
 
 def assertBindingUsed(name,env):
     if name in env:
         raise Exception("Binding {0} not used".format(name))
 
 #tests
-env = {"y":Lollipop(Qubit,Nat)}
-
-expr = Lam(Identifier("x"),Qubit,App(Identifier("y"),Identifier("x")))
+env = {}
+expr = Lam(Identifier("x"),Qubit,Lam(Identifier("y"),Qubit,Tensor(Identifier("x"),Identifier("y"))))
 lol = typecheck(expr,env)
 print(lol)
 
