@@ -1,4 +1,4 @@
-
+import functools
 
 # ast "nodes"
 
@@ -75,7 +75,10 @@ class Lollipop:
         self.t2 = t2
 
     def __str__(self):
-        return "{0} -<> {1}".format(str(self.t1),str(self.t2))
+        return "({0} -<> {1})".format(str(self.t1),str(self.t2))
+
+    def __eq__(self,other):
+        return self.t1 == other.t1 and self.t2 == other.t2
 
 class Multiplicative:
 
@@ -86,6 +89,8 @@ class Multiplicative:
     def __str__(self):
         return "{0} (x) {1}".format(str(self.t1),str(self.t2))
 
+    def __eq__(self,other):
+        return self.t1 == other.t1 and self.t2 == other.t2
 
 # typechecking
 
@@ -112,24 +117,34 @@ def typecheck(item,env):
     
     elif isinstance(item,Lam):
         env[item.var.name] = item.typ
+        deepestLam = item
+        totalTypes = []
+        while isinstance(deepestLam.body, Lam): #deepest lambda won't have another lambda for body
+            totalTypes.append(deepestLam.typ)
+            deepestLam = deepestLam.body
+  
         typoi = []
-        for expr in item.body:
+        for expr in deepestLam.body:
             typoi.append(typecheck(expr,env))
             
-        bodyType = typoi[-1]
-        assertBindingUsed(item.var.name,env)
+        totalTypes.append(deepestLam.typ)
+        totalTypes.append(typoi[-1])
         
-        return Lollipop(item.typ,bodyType)
+        finalType = functools.reduce(lambda x,y: Lollipop(y,x), reversed(totalTypes))
+        
+        assertBindingUsed(item.var.name,env)
+        return finalType
 
     elif isinstance(item,App):
+        
         lamType = typecheck(item.e1,env)
         argType = typecheck(item.e2,env)
+
         if isinstance(lamType,Lollipop):
             if(lamType.t1 == argType):
                 return lamType.t2
             else:
                 #check subtyping
-                
                 if(lamType.t1 == Qubit and isinstance(argType,Multiplicative) or isinstance(argType,Exponential)):
                     return lamType.t2
                 else:

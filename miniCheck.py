@@ -71,8 +71,8 @@ class QImp(object):
         firstType = "null" #Temporary checks! I should write a parser to parse type signatures instead of manually encoding them here
         if listOfTypes[0] == "qubit":
             firstType = typecheck.Qubit
-        elif listOfTypes[0] == "nat":
-            firstType = typecheck.Nat
+        elif listOfTypes[0] == "int":
+            firstType = typecheck.Int
         elif listOfTypes[0] == "qq":
             firstType = typecheck.Lollipop(typecheck.Qubit,typecheck.Qubit)
         elif listOfTypes[0] == "qn":
@@ -90,8 +90,8 @@ class QImp(object):
             typos = "null"
             if typpe == "qubit":
                 typos = typecheck.Qubit
-            elif typpe == "nat":
-                typos = typecheck.Nat
+            elif typpe == "int":
+                typos = typecheck.Int
             elif typpe == "qq":
                 typos = typecheck.Lollipop(typecheck.Qubit,typecheck.Qubit)
             self.env[item] = typos
@@ -107,8 +107,7 @@ class QImp(object):
                 bodyExprs.append(item)
 
         body = bodyExprs
-        
-        
+
         latestLam.body = body
 
         return topLam
