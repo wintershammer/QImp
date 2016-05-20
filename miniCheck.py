@@ -11,7 +11,7 @@ typeEnv =  {"tensor" : typecheck.envTensor, "measure": typecheck.envMeasure, "ap
 class QImp(object):
 
     def __init__(self, env={}):
-        self.env = env
+        self.env = {"tensor" : typecheck.envTensor, "measure": typecheck.envMeasure, "apply" : typecheck.envApply}
         defaultEnf(env)
 
     def parse(self, source):
@@ -42,6 +42,7 @@ class QImp(object):
     def func (self, node):
         'func = "lambda" "(" lvalue ((sep lvalue)*)? ")" ":" lvalue ((sep lvalue)*)? "{" expr* "}" ( "(" expr* ((sep expr)*)? ")" )?'
         _, _, param1, params, _, _, type1, types, _, expr, _ , app = node
+       
         param1 = self.eval(param1)
         type1 = self.eval(type1)
         paramRest = list(map(self.eval, params))
@@ -65,6 +66,8 @@ class QImp(object):
                arguments.append(item[1])
             return(func(*arguments))
 
+
+        
         firstType = "null" #Temporary checks! I should write a parser to parse type signatures instead of manually encoding them here
         if listOfTypes[0] == "qubit":
             firstType = typecheck.Qubit
@@ -81,7 +84,7 @@ class QImp(object):
         topLam = typecheck.Lam(typecheck.Identifier(listOfParams[0]),firstType,[])
         latestLam = topLam
 
-        typeEnv[listOfParams[0]] = firstType
+        self.env[listOfParams[0]] = firstType
         
         for item,typpe in list(zip(listOfParams,listOfTypes))[1:]:
             typos = "null"
@@ -91,12 +94,11 @@ class QImp(object):
                 typos = typecheck.Nat
             elif typpe == "qq":
                 typos = typecheck.Lollipop(typecheck.Qubit,typecheck.Qubit)
-            typeEnv[item] = typos
+            self.env[item] = typos
             currentLam = typecheck.Lam(typecheck.Identifier(item),typos,[])
             latestLam.body = currentLam
             latestLam = currentLam
 
-        
         bodyExprs = []
         body = []
 
@@ -104,16 +106,11 @@ class QImp(object):
             if item != "IGNORE":
                 bodyExprs.append(item)
 
-        if len(bodyExprs) > 1:
-            body = functools.reduce(lambda x,y: typecheck.App(y,x),reversed(bodyExprs))
-        else:
-            body = bodyExprs[0]
+        body = bodyExprs
+        
         
         latestLam.body = body
-        
-        #typos = typecheck.typecheck(topLam,typeEnv)
-        #print(typos)
-        
+
         return topLam
 
     def lista(self, node, children):
@@ -171,10 +168,14 @@ class QImp(object):
     def assignment(self, node, children): 
         'assignment = "let" _ lvalue "=" expr'
         _,_,lvalue, _, expr = children
+        
+        
         if lvalue in self.env:
             raise Exception("Duplicate definitions for" + ": " + lvalue)
-        typeEnv[lvalue] = typecheck.typecheck(expr,typeEnv)
-        return expr
+        
+        self.env[lvalue] = typecheck.typecheck(expr,self.env)
+        
+        return "IGNORE"
 
     def lvalue(self, node, children): #make that 'lvalue = ~"[a-z0-9]+" _' if you want variable/func names to have alphanumeric instead
         'lvalue = ~"[a-zA-Z?]+" _'
@@ -324,9 +325,11 @@ def repl():
         print(qImpInstance.eval(input(">>>")))
 
 with open ("test.qimp", "r",encoding="utf8") as myfile:
-    a = QImp()
-    kek  = a.eval(myfile.read())
-    for item in kek:
-        print(typecheck.typecheck(item,typeEnv))
     
+    a = QImp()
+    progri  = a.eval(myfile.read())
+    
+    for item in progri:
+        print(typecheck.typecheck(item,a.env))
+            
     #print("Global env:",a.env)
