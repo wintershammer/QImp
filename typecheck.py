@@ -78,7 +78,10 @@ class Lollipop:
         return "({0} -<> {1})".format(str(self.t1),str(self.t2))
 
     def __eq__(self,other):
-        return self.t1 == other.t1 and self.t2 == other.t2
+        if isinstance(other,Lollipop):
+            return self.t1 == other.t1 and self.t2 == other.t2
+        else:
+            return False
 
 class Multiplicative:
 
@@ -90,7 +93,10 @@ class Multiplicative:
         return "{0} (x) {1}".format(str(self.t1),str(self.t2))
 
     def __eq__(self,other):
-        return self.t1 == other.t1 and self.t2 == other.t2
+        if isinstance(other,Multiplicative):
+            return self.t1 == other.t1 and self.t2 == other.t2
+        else:
+            return False
 
 # typechecking
 
@@ -164,7 +170,7 @@ def assertBindingUsed(name,env):
             raise Exception("Binding {0} not used".format(name))
 
 
-envApply = Exponential(Lollipop(Qubit,Lollipop(Qubit,Qubit))) #qubit -> qubit so you can do both inner product and matrix mult
+envApply = Exponential(Lollipop(Lollipop(Qubit,Qubit),Lollipop(Qubit,Qubit))) #qubit -> qubit so you can do both inner product and matrix mult
 envQIf = Exponential(Lollipop(Exponential(Bool),Exponential(Qubit))) #should I make one if for each type?
 envTensor = Exponential(Lollipop(Qubit,Lollipop(Qubit,Multiplicative(Qubit,Qubit))))
 envMeasure = Exponential(Lollipop(Qubit,Exponential(Qubit)))
