@@ -1,0 +1,10 @@
+let rec = lambda(x):qubit{
+	base(#t){
+		x
+	}
+	recur{
+		rec(x)
+	}
+}
+
+rec

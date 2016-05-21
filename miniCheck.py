@@ -21,7 +21,7 @@ class QImp(object):
     def eval(self, source):
         node = self.parse(source) if isinstance(source, str) else source
         method = getattr(self, node.expr_name, lambda node, children: children)
-        if node.expr_name in ['ifelse', 'func']:
+        if node.expr_name in ['ifelse', 'func', 'baserecur']:
             return method(node)
         return method(node, [self.eval(n) for n in node])
 
@@ -36,7 +36,7 @@ class QImp(object):
         return children
 
     def expr(self, node, children):
-        'expr = _ (load / func / ifelse / call / comp / infixCall / prefixCall/  lista / assignment / boolLit / stringLit / complexLit / floatLit / intLit / name) _'
+        'expr = _ (load / func / ifelse / baserecur / call / comp / infixCall / prefixCall/  lista / assignment / boolLit / stringLit / complexLit / floatLit / intLit / name) _'
         return children[1][0]
 
     def func (self, node):
@@ -125,13 +125,27 @@ class QImp(object):
         'ifelse = "if" _ "(" expr ")" "{" expr* "}" _ "else" _ "{" expr* "}" '
         _, _, _, cond, _, _, cons, _ , _ , _ , _ , _, alt, _ = node
 
-        consType = self.eval(cons)[0] 
-        altType = self.eval(alt)[0]
+        consExpr = self.eval(cons)[0] 
+        altExpr = self.eval(alt)[0]
         
-        if consType.typos != altType.typos or (isinstance(consType,typecheck.Const) and consType.typos != altType.typos) :
+        if type(typecheck.typecheck(consExpr,self.env.copy())) != type(typecheck.typecheck(altExpr,self.env.copy())) :
             raise Exception("Consequent and alternative types don't match")
             
-        return consType
+        return consExpr
+
+
+    def baserecur(self, node):
+        'baserecur = "base" _ "(" expr ")" "{" expr* "}" _ "recur" _ "{" expr* "}" '
+        _, _, _, cond, _, _, base, _ , _ , _ , _ , _, recur, _ = node
+
+        baseExpr = self.eval(base)[0] 
+        recurExpr = self.eval(recur)[0]
+        
+        if not isinstance(recurExpr,typecheck.App):
+            raise Exception("Recursive case must be function application")
+        else:
+            return baseExpr
+    
 
     def call(self, node, children): #na valo kommata anamesa! how to? opos to kana sthn valentine! (argument1, *(, argumentsExtra)* <- optional)
         'call = name "(" expr ((sep expr)*)? ")"'
@@ -155,14 +169,16 @@ class QImp(object):
         'infixCall = "(" expr name expr ")"'
         _, argument1, name, argument2, _= children
         returner = []
+        returner.append(name)
         returner.append(argument1)
         returner.append(argument2)
-        return name(*returner)
+        expr = functools.reduce(lambda x,y: typecheck.App(x,y),returner)
+        return expr
 
     def prefixCall(self, node, children): #calling unary operators prefix style: (f x) -- potentially could allow any arity, but i don't see the use for lisp-style function calls
         'prefixCall = "(" name expr ")"'
         _, name, argument, _= children
-        return name(argument)
+        return typecheck.App(name,argument)
 
     def assignment(self, node, children): 
         'assignment = "let" _ lvalue "=" expr'
@@ -172,7 +188,7 @@ class QImp(object):
         if lvalue in self.env:
             raise Exception("Duplicate definitions for" + ": " + lvalue)
         
-        self.env[lvalue] = typecheck.typecheck(expr,self.env)
+        self.env[lvalue] = typecheck.typecheck(expr,self.env.copy())
         
         return "IGNORE"
 
