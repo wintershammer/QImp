@@ -11,7 +11,7 @@ class Const:
         self.typos = typos
 
     def __str__(self):
-        return self.expr
+        return str(self.expr)
     
     
 class Identifier: 
@@ -162,11 +162,18 @@ def typecheck(item,env):
         lType = typecheck(item.e1,env)
         rType = typecheck(item.e2,env)
         return Multiplicative(lType,rType)
-        
 
+    elif isinstance(item,list):
+        typeList = []
+        for itm in item:
+            typeList.append(typecheck(itm,env))
+        return typeList[-1]
+
+    
 def assertBindingUsed(name,env):
     if name in env:
-        if not isinstance(env[name],Multiplicative):
+        if not isinstance(env[name],Exponential):
+
             raise Exception("Binding {0} not used".format(name))
 
 

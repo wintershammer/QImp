@@ -125,24 +125,41 @@ class QImp(object):
         'ifelse = "if" _ "(" expr ")" "{" expr* "}" _ "else" _ "{" expr* "}" '
         _, _, _, cond, _, _, cons, _ , _ , _ , _ , _, alt, _ = node
 
-        consExpr = self.eval(cons)[0] 
-        altExpr = self.eval(alt)[0]
+        consExpr = self.eval(cons)
+        altExpr = self.eval(alt)
+
         
-        if type(typecheck.typecheck(consExpr,self.env.copy())) != type(typecheck.typecheck(altExpr,self.env.copy())) :
+        
+        ccheck = typecheck.typecheck(consExpr,self.env.copy())
+        acheck = typecheck.typecheck(altExpr,self.env.copy())
+        
+
+        
+        if type(ccheck) != type(acheck) :
+            print("cons: ",ccheck,"alt: ",acheck)
             raise Exception("Consequent and alternative types don't match")
             
-        return consExpr
+        return [consExpr,altExpr]
 
 
     def baserecur(self, node):
         'baserecur = "base" _ "(" expr ")" "{" expr* "}" _ "recur" _ "{" expr* "}" '
         _, _, _, cond, _, _, base, _ , _ , _ , _ , _, recur, _ = node
 
-        baseExpr = self.eval(base)[0] 
-        recurExpr = self.eval(recur)[0]
+        baseExpr = self.eval(base)
+        recurExpr = self.eval(recur)
         
-        if not isinstance(recurExpr,typecheck.App):
-            raise Exception("Recursive case must be function application")
+        
+        #print(baseExpr)
+        #print(recurExpr)
+
+        flag = False
+        for item in recurExpr:
+            if isinstance(item,typecheck.App):
+                flag = True
+            
+        if(flag == False):
+            raise Exception("Recursive case must contain function application")
         else:
             return baseExpr
     
@@ -339,7 +356,7 @@ def repl():
     while True:
         print(qImpInstance.eval(input(">>>")))
 
-with open ("test.qimp", "r",encoding="utf8") as myfile:
+with open ("typecheckTest.qimp", "r",encoding="utf8") as myfile:
     
     a = QImp()
     progri  = a.eval(myfile.read())
