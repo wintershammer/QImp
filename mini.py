@@ -1,15 +1,18 @@
 ﻿import operator as op
-import math, quantumLib, oracleLib, functools
+import math, quantumLib, oracleLib, functools, miniCheck
 import numpy as np
 import re
 import scipy.linalg as scipyAlg
+import typecheck as typecheckLib
 from parsimonious.grammar import Grammar
+
 
 
 class QImp(object):
 
-    def __init__(self, env={}):
+    def __init__(self, env={}, typeEnv={}):
         self.env = env
+        self.typeEnv = typeEnv
         defaultEnf(env)
 
     def parse(self, source):
@@ -34,12 +37,12 @@ class QImp(object):
         return children
 
     def expr(self, node, children):
-        'expr = _ (load / func / ifelse / call / comp / infixCall / prefixCall/  lista / assignment / boolLit / stringLit / complexLit / floatLit / intLit / name) _'
+        'expr = _ (load / qload / func / ifelse / call / comp / infixCall / prefixCall/  lista / assignment / boolLit / stringLit / complexLit / floatLit / intLit / name) _'
         return children[1][0]
 
     def func (self, node):
-        'func = "lambda" "(" lvalue ((sep lvalue)*)? ")" "{" expr* "}" ( "(" expr* ((sep expr)*)? ")" )?'
-        _, _, param1, params, _, _, expr, _ , app = node
+        'func = "lambda" "(" lvalue ((sep lvalue)*)? ")" (":" lvalue ((sep lvalue)*)?) "{" expr* "}" ( "(" expr* ((sep expr)*)? ")" )?'
+        _, _, param1, params, _, _, _, expr, _ , app = node
         param1 = self.eval(param1)
         paramRest = list(map(self.eval, params))
         listOfParams = []
@@ -81,6 +84,19 @@ class QImp(object):
         returner.append(argument1)
         for item in arguments[0]:
             returner.append(item[1])
+        
+        funName = (node.text.split("(")[0])#get function name (to check if its a typed func)
+        
+        if funName in self.typeEnv and (funName != "print" and funName != "tensor" and funName != "apply"):
+            
+            func = self.typeEnv[funName]
+        
+            for item in returner:
+                #print(item)
+                if not (isinstance(item,list)):
+                    raise Exception("Linear function input {0} was not of quantum type".format(item))
+                    
+             
         return name(*returner)
 
     def infixCall(self, node, children): #calling binary operators in infix style: (x f y)
@@ -131,6 +147,16 @@ class QImp(object):
         _,_,filename = children
         temp = QImp()
         with open ( (filename + ".qimp" ), "r",encoding="utf8") as myfile:
+            temp.eval(myfile.read())
+            self.env = temp.env.copy()
+
+    def qload(self, node, children):
+        'qload = "--qload" _ lvalue '
+        _,_,filename = children
+        temp = QImp()
+        self.typeEnv.update(miniCheck.typecheckFile(filename))
+        
+        with open ( (filename + ".lqimp" ), "r",encoding="utf8") as myfile:
             temp.eval(myfile.read())
             self.env = temp.env.copy()
         
@@ -251,7 +277,7 @@ def repl():
     while True:
         print(qImpInstance.eval(input(">>>")))
 
-with open ("groverGeneralised.qimp", "r",encoding="utf8") as myfile:
+with open ("testor.qimp", "r",encoding="utf8") as myfile:
     a = QImp()
     kek  = a.eval(myfile.read())
     #print("Global env:",a.env)

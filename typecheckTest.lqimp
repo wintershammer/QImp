@@ -1,0 +1,4 @@
+let kek = lambda(x,y):qubit,qubit{
+	print(x)
+	print(y)
+}

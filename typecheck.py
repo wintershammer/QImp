@@ -170,7 +170,7 @@ def typecheck(item,env):
                 if(lamType.t1 == Qubit and isinstance(argType,Multiplicative) or isinstance(argType,Exponential)):
                     return lamType.t2
                 else:
-                    raise Exception("Function {0} expecting type {1} but was given {2}".format(item.e1.name,lamType.t1,argType))
+                    raise Exception("Function {0} expecting type {1} but was given {2}".format(item,lamType.t1,argType))
         else:
                 raise Exception("Non-function application")
             

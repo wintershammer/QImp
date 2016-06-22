@@ -1,0 +1,9 @@
+let kek = lambda(x,y):qubit,qubit{
+	tensor(y,x)
+}
+
+
+let lol = lambda(x):qubit{
+	x
+	6
+}

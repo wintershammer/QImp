@@ -1,0 +1,6 @@
+--qload typetest
+
+print(kek([1 0],[0 1]))
+
+
+print(lol([1 0]))

@@ -359,13 +359,21 @@ def repl():
     qImpInstance = QImp()
     while True:
         print(qImpInstance.eval(input(">>>")))
+        
+def typecheckItem(item,env):
+        a = QImp(env)
+        res = a.eval(item)
+        return res
+    
+def typecheckFile(filename):    
+    with open (filename + ".lqimp", "r",encoding="utf8") as myfile:
+        
+        a = QImp()
+        progri  = a.eval(myfile.read())
+        
+        #for item in progri:
+         #   print(typecheck.typecheck(item,a.env))
 
-with open ("typecheckTest.qimp", "r",encoding="utf8") as myfile:
-    
-    a = QImp()
-    progri  = a.eval(myfile.read())
-    
-    for item in progri:
-        print(typecheck.typecheck(item,a.env))
-            
-    #print("Global env:",a.env)
+        return a.env
+                
+        #print("Global env:",a.env)

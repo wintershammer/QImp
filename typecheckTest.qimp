@@ -1,3 +1,0 @@
-let lol = [1 0]
-
-let kek = tensor(lol,[0 1])
