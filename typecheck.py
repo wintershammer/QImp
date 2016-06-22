@@ -85,7 +85,7 @@ class Lollipop:
 
 class Multiplicative:
 
-    def __init__(self,t1,t2): # t1 -<> t2
+    def __init__(self,t1,t2):
         self.t1 = t1
         self.t2 = t2
 
@@ -98,6 +98,17 @@ class Multiplicative:
         else:
             return False
 
+class Qudit:
+
+    def __init__(self,t1,n):
+        self.t1 = t1
+        self.n = n
+
+    
+    def __str__(self):
+        return "{0}^(x){1}".format(str(self.t1),str(self.n))
+
+                 
 # typechecking
 
 def getType(name,env):
@@ -128,6 +139,11 @@ def typecheck(item,env):
         while isinstance(deepestLam.body, Lam): #deepest lambda won't have another lambda for body
             totalTypes.append(deepestLam.typ)
             deepestLam = deepestLam.body
+            newEnv = env.copy()
+            newEnv[deepestLam.var] = deepestLam.typ
+            typecheck(deepestLam,newEnv)
+
+  
   
         typoi = []
         for expr in deepestLam.body:
@@ -154,7 +170,7 @@ def typecheck(item,env):
                 if(lamType.t1 == Qubit and isinstance(argType,Multiplicative) or isinstance(argType,Exponential)):
                     return lamType.t2
                 else:
-                    raise Exception("Function expecting type {0} but was given {1}".format(lamType.t1,argType))
+                    raise Exception("Function {0} expecting type {1} but was given {2}".format(item.e1.name,lamType.t1,argType))
         else:
                 raise Exception("Non-function application")
             

@@ -67,6 +67,7 @@ class QImp(object):
             return(func(*arguments))
 
 
+        placeholder = typecheck.Qudit(typecheck.Qubit,2)
         
         firstType = "null" #Temporary checks! I should write a parser to parse type signatures instead of manually encoding them here
         if listOfTypes[0] == "qubit":
@@ -79,7 +80,10 @@ class QImp(object):
             firstType = typecheck.Lollipop(typecheck.Qubit,typecheck.Qubit)
         elif listOfTypes[0] == "qxq":
             firstType = typecheck.Multiplicative(typecheck.Qubit,typecheck.Qubit)
-
+        elif listOfTypes[0] == "qudit":
+            firstType = placeholder
+        elif listOfTypes[0] == "qutoqu":
+            firstType = typecheck.Lollipop(placeholder,placeholder)
  
         topLam = typecheck.Lam(typecheck.Identifier(listOfParams[0]),firstType,[])
         latestLam = topLam

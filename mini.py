@@ -1,4 +1,4 @@
-import operator as op
+﻿import operator as op
 import math, quantumLib, oracleLib, functools
 import numpy as np
 import re
@@ -139,7 +139,7 @@ class QImp(object):
         return str(node.text[1:-1])
     
     def name(self, node, children): #make that 'name = ~"[a-z0-9]+" _' if you want variable/func names to have alphanumeric instead
-        'name = ~"[a-zA-Z⊗·+\-/*=?]+"'
+        'name = ~"[a-zA-Z⊗·+\-/<>*=?]+"'
         return self.env.get(node.text.strip(), -1)
 
     def numeral(self, node, children): #helper parser, matches numeral literals
@@ -231,6 +231,7 @@ def defaultEnf(env):
     env["*"] = lambda x,y: np.multiply(x,y)
     env["/"] = lambda x,y: np.divide(x,y)
     env["="] = lambda x,y: x == y
+    env["<"] = lambda x,y: x < y
     env["len"] = lambda x: len(x)
     env["null?"] = lambda x: len(x) == 0
     env["sqrt"] = lambda x: np.sqrt(x)
