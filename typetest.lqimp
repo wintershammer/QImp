@@ -1,9 +1,4 @@
-let kek = lambda(x,y):qubit,qubit{
-	tensor(y,x)
-}
-
-
-let lol = lambda(x):qubit{
-	x
-	6
+let kek = lambda(x : qubit, y : qubit, z : qubit){
+	tensor(z,tensor(x,y))
+	5
 }

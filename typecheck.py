@@ -197,6 +197,7 @@ envApply = Exponential(Lollipop(Lollipop(Qubit,Qubit),Lollipop(Qubit,Qubit))) #q
 envQIf = Exponential(Lollipop(Exponential(Bool),Exponential(Qubit))) #should I make one if for each type?
 envTensor = Exponential(Lollipop(Qubit,Lollipop(Qubit,Multiplicative(Qubit,Qubit))))
 envMeasure = Exponential(Lollipop(Qubit,Exponential(Qubit)))
+envTensorOp = Exponential(Lollipop(Lollipop(Qubit,Qubit),Lollipop(Lollipop(Qubit,Qubit),Multiplicative(Lollipop(Qubit,Qubit),Lollipop(Qubit,Qubit)))))
 #tests
 #env = {}
 ##expr = Lam(Identifier("x"),Lollipop(Qubit,Qubit),Lam(Identifier("y"),Lollipop(Qubit,Qubit),Lam(Identifier("z"),Qubit,App(Identifier("x"),App(Identifier("y"),Identifier("z"))))))

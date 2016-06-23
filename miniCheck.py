@@ -6,7 +6,7 @@ import scipy.linalg as scipyAlg
 import typecheck
 from parsimonious.grammar import Grammar
 
-typeEnv =  {"tensor" : typecheck.envTensor, "measure": typecheck.envMeasure, "apply" : typecheck.envApply}
+typeEnv =  {"tensor" : typecheck.envTensor, "measure": typecheck.envMeasure, "apply" : typecheck.envApply, "tensorOp" : typecheck.envTensorOp}
 
 class QImp(object):
 
@@ -39,25 +39,40 @@ class QImp(object):
         'expr = _ (load / func / ifelse / baserecur / call / comp / infixCall / prefixCall/  lista / assignment / boolLit / stringLit / complexLit / floatLit / intLit / name) _'
         return children[1][0]
 
+
+    def typeDecl(self, node, children):
+        'typeDecl = lvalue _ ":" _ lvalue'
+        ident, _, _, _, typos = children
+        return ident,typos
+
+    
     def func (self, node):
-        'func = "lambda" "(" lvalue ((sep lvalue)*)? ")" ":" lvalue ((sep lvalue)*)? "{" expr* "}" ( "(" expr* ((sep expr)*)? ")" )?'
-        _, _, param1, params, _, _, type1, types, _, expr, _ , app = node
-       
-        param1 = self.eval(param1)
-        type1 = self.eval(type1)
-        paramRest = list(map(self.eval, params))
-        typeRest = list(map(self.eval,types))
+        'func = "lambda" "(" typeDecl ((sep typeDecl)*)? ")"  "{" expr* "}" ( "(" expr* ((sep expr)*)? ")" )?'
+        _, _, param1, params, _, _, expr, _ , app = node
+
+        param1,type1 = self.eval(param1)
+
+
+        paramRest = []
+        typeRest = []
+        declRest = list(map(self.eval, params)) #process extra arguments
+        if declRest != [[]]:
+            for item in declRest[0]:
+                paramRest.append(item[1][0])
+                typeRest.append(item[1][1])
+
+        
         listOfParams = []
         listOfTypes = []
         listOfParams.append(param1)
         listOfTypes.append(type1)
 
         
-        for item in paramRest[0]:
-            listOfParams.append(item[1])
+        for item in paramRest:
+            listOfParams.append(item)
             
-        for item in typeRest[0]:
-            listOfTypes.append(item[1])
+        for item in typeRest:
+            listOfTypes.append(item)
 
         if (app.text): 
             arg = self.eval(app)
@@ -72,6 +87,8 @@ class QImp(object):
         firstType = "null" #Temporary checks! I should write a parser to parse type signatures instead of manually encoding them here
         if listOfTypes[0] == "qubit":
             firstType = typecheck.Qubit
+        elif listOfTypes[0] == "bangq":
+            firstType = typecheck.Exponential(typecheck.Qubit)
         elif listOfTypes[0] == "int":
             firstType = typecheck.Int
         elif listOfTypes[0] == "qq":
@@ -377,3 +394,6 @@ def typecheckFile(filename):
         return a.env
                 
         #print("Global env:",a.env)
+
+
+#typecheckFile("typetest")

@@ -40,9 +40,14 @@ class QImp(object):
         'expr = _ (load / qload / func / ifelse / call / comp / infixCall / prefixCall/  lista / assignment / boolLit / stringLit / complexLit / floatLit / intLit / name) _'
         return children[1][0]
 
+    def typeDecl(self, node, children):
+        'typeDecl = lvalue (_ ":" _ lvalue)?'
+        ident, typos = children
+        return ident
+
     def func (self, node):
-        'func = "lambda" "(" lvalue ((sep lvalue)*)? ")" (":" lvalue ((sep lvalue)*)?) "{" expr* "}" ( "(" expr* ((sep expr)*)? ")" )?'
-        _, _, param1, params, _, _, _, expr, _ , app = node
+        'func = "lambda" "(" typeDecl ((sep typeDecl)*)? ")"  "{" expr* "}" ( "(" expr* ((sep expr)*)? ")" )?'
+        _, _, param1, params, _, _, expr, _ , app = node
         param1 = self.eval(param1)
         paramRest = list(map(self.eval, params))
         listOfParams = []
@@ -244,7 +249,7 @@ def defaultEnf(env):
     env['fold'] = lambda x,y : functools.reduce(x,y)
     env['tensor'] = lambda x,y: np.kron(x,y)
     env['apply'] = lambda x,y: np.dot(x,y)
-    env['outer'] = lambda x,y: np.outer(x,y)
+    #env['outer'] = lambda x,y: np.outer(x,y)
     env['measure'] = lambda x: quantumLib.measure(x)
     env['subsystems'] = lambda state,configuration: quantumLib.splitToSub(state,configuration)
     env['eq'] = lambda x,y: x == y
@@ -277,7 +282,7 @@ def repl():
     while True:
         print(qImpInstance.eval(input(">>>")))
 
-with open ("testor.qimp", "r",encoding="utf8") as myfile:
+with open ("qft.qimp", "r",encoding="utf8") as myfile:
     a = QImp()
     kek  = a.eval(myfile.read())
     #print("Global env:",a.env)
