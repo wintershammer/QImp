@@ -5,6 +5,7 @@ import re
 import scipy.linalg as scipyAlg
 import typecheck
 from parsimonious.grammar import Grammar
+from parseType import parseType
 
 typeEnv =  {"tensor" : typecheck.envTensor, "measure": typecheck.envMeasure, "apply" : typecheck.envApply, "tensorOp" : typecheck.envTensorOp}
 
@@ -41,9 +42,14 @@ class QImp(object):
 
 
     def typeDecl(self, node, children):
-        'typeDecl = lvalue _ ":" _ lvalue'
+        'typeDecl = lvalue _ ":" _ typeName'
         ident, _, _, _, typos = children
         return ident,typos
+
+
+    def typeName(self,node,children):
+        'typeName = ~"[a-z A-Z 0-9 ! # $ * { } ?]*" '
+        return node.text.strip()
 
     
     def func (self, node):
@@ -84,37 +90,15 @@ class QImp(object):
 
         placeholder = typecheck.Qudit(typecheck.Qubit,2)
         
-        firstType = "null" #Temporary checks! I should write a parser to parse type signatures instead of manually encoding them here
-        if listOfTypes[0] == "qubit":
-            firstType = typecheck.Qubit
-        elif listOfTypes[0] == "bangq":
-            firstType = typecheck.Exponential(typecheck.Qubit)
-        elif listOfTypes[0] == "int":
-            firstType = typecheck.Int
-        elif listOfTypes[0] == "qq":
-            firstType = typecheck.Lollipop(typecheck.Qubit,typecheck.Qubit)
-        elif listOfTypes[0] == "qn":
-            firstType = typecheck.Lollipop(typecheck.Qubit,typecheck.Qubit)
-        elif listOfTypes[0] == "qxq":
-            firstType = typecheck.Multiplicative(typecheck.Qubit,typecheck.Qubit)
-        elif listOfTypes[0] == "qudit":
-            firstType = placeholder
-        elif listOfTypes[0] == "qutoqu":
-            firstType = typecheck.Lollipop(placeholder,placeholder)
+        firstType = parseType(listOfTypes[0])
  
         topLam = typecheck.Lam(typecheck.Identifier(listOfParams[0]),firstType,[])
         latestLam = topLam
 
         self.env[listOfParams[0]] = firstType
         
-        for item,typpe in list(zip(listOfParams,listOfTypes))[1:]:
-            typos = "null"
-            if typpe == "qubit":
-                typos = typecheck.Qubit
-            elif typpe == "int":
-                typos = typecheck.Int
-            elif typpe == "qq":
-                typos = typecheck.Lollipop(typecheck.Qubit,typecheck.Qubit)
+        for item,typeString in list(zip(listOfParams,listOfTypes))[1:]:
+            typos = parseType(typeString)
             self.env[item] = typos
             currentLam = typecheck.Lam(typecheck.Identifier(item),typos,[])
             latestLam.body = currentLam
@@ -388,12 +372,12 @@ def typecheckFile(filename):
         a = QImp()
         progri  = a.eval(myfile.read())
         
-        #for item in progri:
-         #   print(typecheck.typecheck(item,a.env))
+        for item in progri:
+            print(typecheck.typecheck(item,a.env))
 
         return a.env
                 
         #print("Global env:",a.env)
 
 
-#typecheckFile("typetest")
+typecheckFile("typetest")
