@@ -1,6 +1,4 @@
-let kek = lambda(y : qubit, x : !{qubit} ){
+lambda(x : operator[2] , y: ![qubit]){
 	x
 	y
 }
-
-kek

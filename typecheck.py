@@ -193,6 +193,7 @@ def assertBindingUsed(name,env):
             raise Exception("Binding {0} not used".format(name))
 
 
+envAdd = Exponential(Lollipop(Int,Int))
 envApply = Exponential(Lollipop(Lollipop(Qubit,Qubit),Lollipop(Qubit,Qubit))) #qubit -> qubit so you can do both inner product and matrix mult
 envQIf = Exponential(Lollipop(Exponential(Bool),Exponential(Qubit))) #should I make one if for each type?
 envTensor = Exponential(Lollipop(Qubit,Lollipop(Qubit,Multiplicative(Qubit,Qubit))))

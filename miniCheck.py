@@ -7,12 +7,12 @@ import typecheck
 from parsimonious.grammar import Grammar
 from parseType import parseType
 
-typeEnv =  {"tensor" : typecheck.envTensor, "measure": typecheck.envMeasure, "apply" : typecheck.envApply, "tensorOp" : typecheck.envTensorOp}
+typeEnv =  {"tensor" : typecheck.envTensor, "measure": typecheck.envMeasure, "apply" : typecheck.envApply, "tensorOp" : typecheck.envTensorOp, "+" : typecheck.envAdd}
 
 class QImp(object):
 
     def __init__(self, env={}):
-        self.env = {"tensor" : typecheck.envTensor, "measure": typecheck.envMeasure, "apply" : typecheck.envApply}
+        self.env = {"tensor" : typecheck.envTensor, "measure": typecheck.envMeasure, "apply" : typecheck.envApply, "tensorOp" : typecheck.envTensorOp, "+" : typecheck.envAdd}
         defaultEnf(env)
 
     def parse(self, source):
@@ -48,7 +48,7 @@ class QImp(object):
 
 
     def typeName(self,node,children):
-        'typeName = ~"[a-z A-Z 0-9 ! # $ * { } ?]*" '
+        'typeName = ~"[a-z A-Z 0-9 ! # $ * { } \[ \] ?]*" '
         return node.text.strip()
 
     
