@@ -1,3 +1,6 @@
-let lol = lambda(x : qubit, y : qubit){
+let lol = lambda(x : qubit, y: qubit){
 	tensor(x,y)
 }
+
+
+

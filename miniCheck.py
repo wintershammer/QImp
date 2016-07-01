@@ -5,6 +5,7 @@ import re
 import scipy.linalg as scipyAlg
 import typecheck
 import tsek
+import copy
 from parsimonious.grammar import Grammar
 from parseType import parseType
 
@@ -98,13 +99,15 @@ class QImp(object):
         topLam = typecheck.Lam(typecheck.Identifier(listOfParams[0]),firstType,[])
         latestLam = topLam
 
-        self.env[listOfParams[0]] = firstType
+        localContext = copy.deepcopy(self.env)
+
+        localContext[listOfParams[0]] = firstType
 
         
         for item,typeString in list(zip(listOfParams,listOfTypes))[1:]:
             typos = parseType(typeString)
             constrs.append(typos)
-            self.env[item] = typos
+            localContext[item] = typos
             currentLam = typecheck.Lam(typecheck.Identifier(item),typos,[])
             latestLam.body = currentLam
             latestLam = currentLam
@@ -112,7 +115,9 @@ class QImp(object):
         bodyExprs = []
         body = []
 
-        for item in self.eval(expr):
+        evltr = QImp(localContext)
+        
+        for item in evltr.eval(expr):
             if item != "IGNORE":
                 bodyExprs.append(item)
 
@@ -120,8 +125,9 @@ class QImp(object):
 
         latestLam.body = body
         topLam.setConstr(constrs)
+       
 
-        return topLam
+        return typecheck.typecheck(topLam,localContext)
 
     def lista(self, node, children):
         'lista = "[" expr* "]"'
@@ -216,9 +222,11 @@ class QImp(object):
         
         if lvalue in self.env:
             raise Exception("Duplicate definitions for" + ": " + lvalue)
-        
-        self.env[lvalue] = typecheck.typecheck(expr,self.env)
-        
+
+        if not isinstance(expr,typecheck.Lollipop):
+            self.env[lvalue] = typecheck.typecheck(expr,copy.deepcopy(self.env))
+        else:
+            self.env[lvalue] = expr
         return "IGNORE"
 
     def lvalue(self, node, children): #make that 'lvalue = ~"[a-z0-9]+" _' if you want variable/func names to have alphanumeric instead
@@ -381,8 +389,8 @@ def typecheckFile(filename):
         a = QImp()
         progri  = a.eval(myfile.read())
         
-        #for item in progri:
-         #   print(typecheck.typecheck(item,a.env))
+        for item in progri:
+            print(typecheck.typecheck(item,a.env))
         #print("Global env:",a.env)
         return a.env
 
