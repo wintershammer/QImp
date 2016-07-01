@@ -27,6 +27,10 @@ class Lam:
         self.var = var
         self.typ = typ
         self.body = body
+        self.const = []
+
+    def setConstr(self,constr):
+        self.const.append(constr)
 
     def __str__(self):
         return "lam {0} {1} {2}".format(str(self.var),str(self.typ),str(self.body))
@@ -73,9 +77,13 @@ class Lollipop:
     def __init__(self,t1,t2): # t1 -<> t2
         self.t1 = t1
         self.t2 = t2
+        self.const = []
 
     def __str__(self):
         return "({0} -<> {1})".format(str(self.t1),str(self.t2))
+
+    def setConst(self,constr):
+        self.const.append(constr)
 
     def __eq__(self,other):
         if isinstance(other,Lollipop):
@@ -100,13 +108,12 @@ class Multiplicative:
 
 class Qudit:
 
-    def __init__(self,t1,n):
-        self.t1 = t1
+    def __init__(self,n):
         self.n = n
 
     
     def __str__(self):
-        return "{0}^(x){1}".format(str(self.t1),str(self.n))
+        return "Qubit^(x){0}".format(str(self.n))
 
                  
 # typechecking
@@ -155,6 +162,8 @@ def typecheck(item,env):
         finalType = functools.reduce(lambda x,y: Lollipop(y,x), reversed(totalTypes))
         
         assertBindingUsed(item.var.name,env)
+
+        finalType.setConst(item.const)
         return finalType
 
     elif isinstance(item,App):
@@ -172,7 +181,7 @@ def typecheck(item,env):
                 else:
                     raise Exception("Function {0} expecting type {1} but was given {2}".format(item,lamType.t1,argType))
         else:
-                raise Exception("Non-function application")
+                raise Exception("Non-function application between {0} and {1}".format(lamType,argType))
             
     elif isinstance(item,Tensor):
         lType = typecheck(item.e1,env)

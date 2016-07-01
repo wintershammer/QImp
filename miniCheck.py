@@ -4,6 +4,7 @@ import numpy as np
 import re
 import scipy.linalg as scipyAlg
 import typecheck
+import tsek
 from parsimonious.grammar import Grammar
 from parseType import parseType
 
@@ -11,9 +12,11 @@ typeEnv =  {"tensor" : typecheck.envTensor, "measure": typecheck.envMeasure, "ap
 
 class QImp(object):
 
-    def __init__(self, env={}):
+    def __init__(self, envExt={}):
         self.env = {"tensor" : typecheck.envTensor, "measure": typecheck.envMeasure, "apply" : typecheck.envApply, "tensorOp" : typecheck.envTensorOp, "+" : typecheck.envAdd}
-        defaultEnf(env)
+        self.env.update(envExt)
+        self.constr = {}
+        #defaultEnf(env)
 
     def parse(self, source):
         grammar = self.grammarFromDocStr()
@@ -87,18 +90,20 @@ class QImp(object):
                arguments.append(item[1])
             return(func(*arguments))
 
+        constrs = [] 
 
-        placeholder = typecheck.Qudit(typecheck.Qubit,2)
-        
         firstType = parseType(listOfTypes[0])
+        constrs.append(firstType)
  
         topLam = typecheck.Lam(typecheck.Identifier(listOfParams[0]),firstType,[])
         latestLam = topLam
 
         self.env[listOfParams[0]] = firstType
+
         
         for item,typeString in list(zip(listOfParams,listOfTypes))[1:]:
             typos = parseType(typeString)
+            constrs.append(typos)
             self.env[item] = typos
             currentLam = typecheck.Lam(typecheck.Identifier(item),typos,[])
             latestLam.body = currentLam
@@ -114,13 +119,15 @@ class QImp(object):
         body = bodyExprs
 
         latestLam.body = body
+        topLam.setConstr(constrs)
 
         return topLam
 
     def lista(self, node, children):
         'lista = "[" expr* "]"'
         _, arguments, _ = children
-        return typecheck.Const(str(arguments),typecheck.Qubit)
+        typos = tsek.parseAndGenerateListType(node.text)
+        return typecheck.Const(str(arguments),typos)
 
     def parameters(self, node, children):
         'parameters = lvalue*'
@@ -210,7 +217,7 @@ class QImp(object):
         if lvalue in self.env:
             raise Exception("Duplicate definitions for" + ": " + lvalue)
         
-        self.env[lvalue] = typecheck.typecheck(expr,self.env.copy())
+        self.env[lvalue] = typecheck.typecheck(expr,self.env)
         
         return "IGNORE"
 
@@ -318,6 +325,8 @@ def prettyPrint(x):
         print(x)
 
 
+
+
 def defaultEnf(env):
     env['sum'] = lambda *args: sum(args)
     env['sqrt'] = lambda x: math.sqrt(x)
@@ -372,12 +381,11 @@ def typecheckFile(filename):
         a = QImp()
         progri  = a.eval(myfile.read())
         
-        for item in progri:
-            print(typecheck.typecheck(item,a.env))
-
-        return a.env
-                
+        #for item in progri:
+         #   print(typecheck.typecheck(item,a.env))
         #print("Global env:",a.env)
+        return a.env
 
 
-typecheckFile("typetest")
+
+#typecheckFile("typetest")

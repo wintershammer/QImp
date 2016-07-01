@@ -4,6 +4,7 @@ import numpy as np
 import re
 import scipy.linalg as scipyAlg
 import typecheck as typecheckLib
+import tsek
 from parsimonious.grammar import Grammar
 
 
@@ -41,10 +42,16 @@ class QImp(object):
         return children[1][0]
 
     def typeDecl(self, node, children):
-        'typeDecl = lvalue (_ ":" _ lvalue)?'
-        ident, typos = children
+        'typeDecl = lvalue (_ ":" _ typeName)?'
+        ident, _, = children
         return ident
 
+
+    def typeName(self,node,children):
+        'typeName = ~"[a-z A-Z 0-9 ! # $ * { } \[ \] ?]*" '
+        return None
+
+    
     def func (self, node):
         'func = "lambda" "(" typeDecl ((sep typeDecl)*)? ")"  "{" expr* "}" ( "(" expr* ((sep expr)*)? ")" )?'
         _, _, param1, params, _, _, expr, _ , app = node
@@ -92,15 +99,21 @@ class QImp(object):
         
         funName = (node.text.split("(")[0])#get function name (to check if its a typed func)
         
-        if funName in self.typeEnv and (funName != "print" and funName != "tensor" and funName != "apply"):
+        if funName in self.typeEnv and (funName != "tensor" and funName != "apply" and funName != "measure"):
             
             func = self.typeEnv[funName]
-        
+
+            argTypes = []
             for item in returner:
                 #print(item)
                 if not (isinstance(item,list)):
                     raise Exception("Linear function input {0} was not of quantum type".format(item))
+                else:
+                    argTypes.append(tsek.generateListType(item))
                     
+            for constraint,arg in zip(func.const[0][0],argTypes):
+                if not (constraint == arg):
+                    raise Exception("Constraints not met for {0}".format(funName))
              
         return name(*returner)
 
@@ -277,12 +290,17 @@ def defaultEnf(env):
     env["length"] = lambda x: len(x)
     env["transpose"] = lambda x: (quantumLib.ctransp(x)).tolist();
 
+def parseItem(item):
+    a = QImp()
+    return a.eval(item)
+
 def repl():
     qImpInstance = QImp()
     while True:
         print(qImpInstance.eval(input(">>>")))
 
-with open ("qft.qimp", "r",encoding="utf8") as myfile:
-    a = QImp()
-    kek  = a.eval(myfile.read())
+def run(filename):
+    with open (filename+".qimp", "r",encoding="utf8") as myfile:
+        a = QImp()
+        kek  = a.eval(myfile.read())
     #print("Global env:",a.env)
