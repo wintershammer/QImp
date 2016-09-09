@@ -1,4 +1,4 @@
 --qload typetest
 
-let a = lol([1 0],[1 0])
+let a = lol([[0 1] [1 0]],[1 0])
 print(a)

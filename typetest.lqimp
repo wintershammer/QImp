@@ -1,5 +1,5 @@
-let lol = lambda(x : qubit, y: qubit){
-	tensor(x,y)
+let lol = lambda(x : qubit > qubit, y : qubit){
+	apply(x,y)
 }
 
 

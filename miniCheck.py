@@ -9,7 +9,14 @@ import copy
 from parsimonious.grammar import Grammar
 from parseType import parseType
 
-typeEnv =  {"tensor" : typecheck.envTensor, "measure": typecheck.envMeasure, "apply" : typecheck.envApply, "tensorOp" : typecheck.envTensorOp, "+" : typecheck.envAdd}
+typeEnv =  {"tensor" : typecheck.envTensor, "measure": typecheck.envMeasure, "apply" : typecheck.envApply,
+            "tensorOp" : typecheck.envTensorOp, "+" : typecheck.envAdd}
+
+#gotta have one apply for each dimensions of the operator
+#a workaround would be to bypass normal checking of apply's type signature
+#and instead have an ad-hoc function that checks that the operator and qubit to be operated have the correct dimentions
+#same problem for things like tensor, tensorOp, measure etc
+#or I add dependent types and we'll have no need for ad-hoc stuff/workarounds.
 
 class QImp(object):
 
@@ -52,7 +59,7 @@ class QImp(object):
 
 
     def typeName(self,node,children):
-        'typeName = ~"[a-z A-Z 0-9 ! # $ * { } \[ \] ?]*" '
+        'typeName = ~"[a-z A-Z 0-9 ! # $ * > { } \[ \] ?]*" '
         return node.text.strip()
 
     

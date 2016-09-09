@@ -48,7 +48,7 @@ class QImp(object):
 
 
     def typeName(self,node,children):
-        'typeName = ~"[a-z A-Z 0-9 ! # $ * { } \[ \] ?]*" '
+        'typeName = ~"[a-z A-Z 0-9 ! # $ * > { } \[ \] ?]*" '
         return None
 
     
@@ -113,7 +113,7 @@ class QImp(object):
                     
             for constraint,arg in zip(func.const[0][0],argTypes):
                 if not (constraint == arg):
-                    raise Exception("Constraints not met for {0}".format(funName))
+                    raise Exception("Constraint Error for {2}: Input {1} does not meet constraint {0}".format(constraint,arg,funName))
              
         return name(*returner)
 
