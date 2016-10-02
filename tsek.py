@@ -35,7 +35,7 @@ def generateListType(lista):
                 if (shape[0] == 2):
                     return tp.Lollipop(tp.Qubit,tp.Qubit)
                 else:
-                    return generateOperator(shape[0])
+                    return generateOperator(int(log(shape[0],2)))
             else:
                 raise Exception("operator {0} was not square".format(lista))
         else:

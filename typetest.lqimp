@@ -1,5 +1,5 @@
-let lol = lambda(x : qubit > qubit, y : qubit){
-	apply(x,y)
+let func = lambda(x :  operator[2] ){
+	x
 }
 
 

@@ -113,7 +113,23 @@ class QImp(object):
                     
             for constraint,arg in zip(func.const[0][0],argTypes):
                 if not (constraint == arg):
-                    raise Exception("Constraint Error for {2}: Input {1} does not meet constraint {0}".format(constraint,arg,funName))
+                    if(isinstance(constraint,typecheckLib.Exponential) or isinstance(arg,typecheckLib.Exponential)):
+                        constIsExpo = isinstance(constraint,typecheckLib.Exponential)
+                        argIsExpo = isinstance(arg,typecheckLib.Exponential)
+                        if(constIsExpo and argIsExpo):
+                            print(constraint)
+                            print(arg)
+                            if not(constraint.typ == arg.typ):
+                                raise Exception("Constraint Error for {2}: Input {1} does not meet constraint {0}".format(constraint,arg,funName))
+                        if(constIsExpo and not argIsExpo):
+                            if not(constraint.typ == arg):
+                                raise Exception("Constraint Error for {2}: Input {1} does not meet constraint {0}".format(constraint,arg,funName))
+                        if(not constIsExpo and argIsExpo):
+                            if not(constraint == arg.typ):
+                                raise Exception("Constraint Error for {2}: Input {1} does not meet constraint {0}".format(constraint,arg,funName))
+
+                    else:
+                        raise Exception("Constraint Error for {2}: Input {1} does not meet constraint {0}".format(constraint,arg,funName))
              
         return name(*returner)
 

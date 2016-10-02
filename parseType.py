@@ -7,7 +7,7 @@ def parseType(string):
     opRegex = re.compile('operator\[([0-9]*)\]')
     tensRegex = re.compile('(.+) \* (.+)')
     funRegex = re.compile('(.+) > (.+)')
-    expRegex = re.compile('\!\[(.*)\]')
+    expRegex = re.compile('\!\{(.*)\}')
 
     if funRegex.match(string):
         a = funRegex.match(string)

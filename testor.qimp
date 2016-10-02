@@ -1,4 +1,7 @@
 --qload typetest
 
-let a = lol([[0 1] [1 0]],[1 0])
-print(a)
+let a = [[1 0 0 0] [0 1 0 0] [0 0 1 0] [0 0 0 1]]
+
+let b = func(a)
+
+print(b)
