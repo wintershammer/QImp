@@ -178,8 +178,8 @@ def typecheck(item,env):
                 #check subtyping
                 if(lamType.t1 == Qubit and isinstance(argType,Multiplicative) or isinstance(argType,Exponential)):
                     return lamType.t2
-                elif str(item.e1) == "apply":
-                    return lamType.t2
+                elif str(item.e1) == "apply": #oh thats smart, just return the type of f in apply(f,x) and the typecheker will check it against x!
+                    return argType #after all, apply is just explicit function application and the typechecker already handles that  
                 else:
                     raise Exception("Function {0} expecting type {1} but was given {2}".format(item,lamType.t1,argType))
         else:
