@@ -1,9 +1,7 @@
+--load generator
+--load operators
 --qload typetest
 
-let qubi = [1 0]
+let id = [[1 0] [0 1]]
 let inv = [[0 1] [1 0]]
-let id = [[1 0 0 0] [0 1 0 0] [0 0 1 0] [0 0 0 1]]
-
-let b = func(qubi,inv,inv)
-
-print(b)
+print(checkTensor(id, inv, [1 0 0 0]))

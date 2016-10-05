@@ -102,7 +102,12 @@ class Multiplicative:
 
     def __eq__(self,other):
         if isinstance(other,Multiplicative):
-            return self.t1 == other.t1 and self.t2 == other.t2
+            #return self.t1 == other.t1 and self.t2 == other.t2
+            #qubit (x) (qubit (x) qubit) should be equal to (qubit (x) qubit) (x) qubit
+            #because of associativity of monoidal product
+            #for now i just check the two string representations against eachother, after i strip the parenthesis
+            #should probably find a uniform way to "flatten" tensors?
+            return  str(self).replace('(', '').replace(')', '') ==  str(other).replace('(', '').replace(')', '') 
         else:
             return False
 
@@ -180,6 +185,11 @@ def typecheck(item,env):
                     return lamType.t2
                 elif str(item.e1) == "apply": #oh thats smart, just return the type of f in apply(f,x) and the typecheker will check it against x!
                     return argType #after all, apply is just explicit function application and the typechecker already handles that  
+                elif str(item.e1) == "tensorOp":
+                    print("OHIO",argType)
+                    return Lollipop(argType, Lollipop(Multiplicative(argType.t1,argType.t1),Multiplicative(argType.t1,argType.t1)))
+                elif str(item.e1) == "measure": #measure just adds exponential modality to its argument
+                    return Exponential(argType)
                 else:
                     raise Exception("Function {0} expecting type {1} but was given {2}".format(item,lamType.t1,argType))
         else:
@@ -209,7 +219,7 @@ envApply = Exponential(Lollipop(Lollipop(Qubit,Qubit),Lollipop(Qubit,Qubit))) #q
 envQIf = Exponential(Lollipop(Exponential(Bool),Exponential(Qubit))) #should I make one if for each type?
 envTensor = Exponential(Lollipop(Qubit,Lollipop(Qubit,Multiplicative(Qubit,Qubit))))
 envMeasure = Exponential(Lollipop(Qubit,Exponential(Qubit)))
-envTensorOp = Exponential(Lollipop(Lollipop(Qubit,Qubit),Lollipop(Lollipop(Qubit,Qubit),Multiplicative(Lollipop(Qubit,Qubit),Lollipop(Qubit,Qubit)))))
+envTensorOp = Exponential(Lollipop(Lollipop(Qubit,Qubit),Lollipop(Lollipop(Qubit,Qubit),Lollipop(Multiplicative(Qubit,Qubit),Multiplicative(Qubit,Qubit)))))
 #tests
 #env = {}
 ##expr = Lam(Identifier("x"),Lollipop(Qubit,Qubit),Lam(Identifier("y"),Lollipop(Qubit,Qubit),Lam(Identifier("z"),Qubit,App(Identifier("x"),App(Identifier("y"),Identifier("z"))))))

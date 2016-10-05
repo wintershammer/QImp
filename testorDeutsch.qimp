@@ -1,0 +1,29 @@
+--load operators
+--load generator
+--qload deutschTypes
+
+
+
+let H = generateMatrix(hadamard,2)
+let I = generateMatrix(identity,2)
+
+let fConstant = lambda(x){
+	[1 0]
+}
+
+let fBalanced = lambda(x){
+	x
+}
+
+let state = tensor([1 0],[0 1])
+
+let Uf = oracle(generateMatrix(fConstant,2))
+
+deutschRoutine(state,H,I,Uf)
+
+
+
+print(state)
+
+
+print(tensor([1 0],[0 1]))

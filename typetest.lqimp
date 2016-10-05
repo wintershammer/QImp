@@ -1,6 +1,3 @@
-let func = lambda(x : qubit, y : operator[1], f : operator[1]){
-	f(y(x))
+let checkTensor  = lambda(func : operator[1], funcc : operator[1], state : qubit * qubit){
+	apply(tensorOp(func,funcc),state)
 }
-
-
-

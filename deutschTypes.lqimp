@@ -1,0 +1,7 @@
+let deutschRoutine = lambda(state : qubit * qubit, H : !{operator[1]}, I : !{operator[1]}, U : !{operator[2]}){
+	measure(
+		  apply(tensorOp(H,I),
+		  apply(U,
+		  apply(tensorOp(H,H),
+		  state))))
+}

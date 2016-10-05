@@ -99,9 +99,10 @@ class QImp(object):
         
         funName = (node.text.split("(")[0])#get function name (to check if its a typed func)
         
-        if funName in self.typeEnv and (funName != "tensor" and funName != "apply" and funName != "measure"):
+        if funName in self.typeEnv and (funName != "tensor" and funName != "apply" and funName != "measure" and funName != "tensorOp"):
             
             func = self.typeEnv[funName]
+
 
             argTypes = []
             for item in returner:
@@ -280,9 +281,9 @@ def defaultEnf(env):
     env['cdr'] = lambda x: myCdr(x)
     env['map'] = lambda x,y: list(map(x,y))
     env['fold'] = lambda x,y : functools.reduce(x,y)
-    env['tensor'] = lambda x,y: np.kron(x,y)
+    env['tensor'] = lambda x,y: np.kron(x,y).tolist()
     env['apply'] = lambda x,y: np.dot(x,y)
-    #env['outer'] = lambda x,y: np.outer(x,y)
+    env['outer'] = lambda x,y: np.outer(x,y)
     env['measure'] = lambda x: quantumLib.measure(x)
     env['subsystems'] = lambda state,configuration: quantumLib.splitToSub(state,configuration)
     env['eq'] = lambda x,y: x == y
@@ -308,6 +309,7 @@ def defaultEnf(env):
     env["logm"] = lambda matrix: list(scipyAlg.logm(matrix))
     env["logTwo"] = lambda x: int(math.log(x,2))
     env["length"] = lambda x: len(x)
+    env["tensorOp"] = lambda x,y: np.kron(x,y)
     env["transpose"] = lambda x: (quantumLib.ctransp(x)).tolist();
 
 def parseItem(item):
@@ -319,6 +321,7 @@ def repl():
     while True:
         print(qImpInstance.eval(input(">>>")))
 
+    
 def run(filename):
     with open (filename+".qimp", "r",encoding="utf8") as myfile:
         a = QImp()
