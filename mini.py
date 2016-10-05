@@ -130,7 +130,11 @@ class QImp(object):
 
                     else:
                         raise Exception("Constraint Error for {2}: Input {1} does not meet constraint {0}".format(constraint,arg,funName))
-             
+
+        if isinstance(name,list): #if the "function" you are applying is a matrix just do matrix multiplication
+            #print(returner)
+            return self.env["apply"](returner,name)[0]
+            
         return name(*returner)
 
     def infixCall(self, node, children): #calling binary operators in infix style: (x f y)

@@ -1,5 +1,5 @@
-let func = lambda(x : qubit, w : qubit, y : operator[1], z : operator[2]){
-	apply(z,tensor(w,apply(y,x)))
+let func = lambda(x : qubit, y : operator[1], f : operator[1]){
+	f(y(x))
 }
 
 
