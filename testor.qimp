@@ -1,7 +1,9 @@
 --qload typetest
 
-let a = [[1 0 0 0] [0 1 0 0] [0 0 1 0] [0 0 0 1]]
+let qubi = [1 0]
+let inv = [[0 1] [1 0]]
+let id = [[1 0 0 0] [0 1 0 0] [0 0 1 0] [0 0 0 1]]
 
-let b = func(a)
+let b = func(qubi,qubi,inv,id)
 
 print(b)
