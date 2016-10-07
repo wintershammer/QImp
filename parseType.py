@@ -22,6 +22,8 @@ def parseType(string):
         return generateOperator(int(opRegex.match(string).group(1)))
     elif string == "qubit":
         return typecheck.Qubit
+    elif string == "int":
+        return typecheck.Int
     else:
         raise Exception("Argument {0} has wrong type declaration".format(string))
 

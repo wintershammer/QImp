@@ -172,6 +172,7 @@ def typecheck(item,env):
         return finalType
 
     elif isinstance(item,App):
+
         
         lamType = typecheck(item.e1,env)
         argType = typecheck(item.e2,env)
@@ -186,10 +187,11 @@ def typecheck(item,env):
                 elif str(item.e1) == "apply": #oh thats smart, just return the type of f in apply(f,x) and the typecheker will check it against x!
                     return argType #after all, apply is just explicit function application and the typechecker already handles that  
                 elif str(item.e1) == "tensorOp":
-                    print("OHIO",argType)
                     return Lollipop(argType, Lollipop(Multiplicative(argType.t1,argType.t1),Multiplicative(argType.t1,argType.t1)))
                 elif str(item.e1) == "measure": #measure just adds exponential modality to its argument
                     return Exponential(argType)
+                elif str(item.e1) == "applyN":
+                    return Lollipop(argType.t2,Lollipop(Int,argType.t2))
                 else:
                     raise Exception("Function {0} expecting type {1} but was given {2}".format(item,lamType.t1,argType))
         else:
@@ -215,6 +217,7 @@ def assertBindingUsed(name,env):
 
 
 envAdd = Exponential(Lollipop(Int,Int))
+envApplyN = Exponential(Lollipop(Lollipop(Qubit,Qubit),Lollipop(Qubit,Lollipop(Int,Qubit))))
 envApply = Exponential(Lollipop(Lollipop(Qubit,Qubit),Lollipop(Qubit,Qubit))) #qubit -> qubit so you can do both inner product and matrix mult
 envQIf = Exponential(Lollipop(Exponential(Bool),Exponential(Qubit))) #should I make one if for each type?
 envTensor = Exponential(Lollipop(Qubit,Lollipop(Qubit,Multiplicative(Qubit,Qubit))))

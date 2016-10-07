@@ -1,0 +1,44 @@
+--load generator
+--load operators
+--qload groverTypes
+
+
+let H = generateMatrix(hadamard,2)
+let I = generateMatrix(identity,4)
+
+let Htwo = tensor(H,H)
+
+let f = lambda(string){
+	lambda(x){
+		if((x = string)){
+				[0 1]
+		}
+		else{
+			[1 0]
+		}
+	}
+}
+
+
+
+
+let groverIter = lambda(state,Uf,times){
+	
+	let average = apply(Htwo,[1 0 0 0])
+
+	let groverOper =  ((2 * outer(average,average)) - I)
+
+	
+	let opb = tensor(groverOper,generateMatrix(identity,2))
+
+	let iteration = apply(opb,Uf)
+	groverRoutine(state,iteration,times)
+}
+
+let grover = lambda(string){
+	let Uf = oracle(generateMatrix(f(string),4))
+	let initialState = apply(tensor(Htwo,H),tensor([1 0 0 0],[0 1]))
+	subsystems(groverIter(initialState,Uf,4),[2 1])
+}
+
+grover([1 0 0 0])

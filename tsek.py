@@ -28,7 +28,10 @@ def generateListType(lista):
         if dim == 1:
             return tp.Qubit
         else:
-            return tp.Multiplicative(tp.Qubit,generateListType(lista[1:]))
+            typ = tp.Qubit
+            for i in range(1,dim):
+                typ = tp.Multiplicative(tp.Qubit,typ)
+            return typ
     elif len(shape) == 2:
         if shape[1] != None:
             if shape[0] == shape[1]:

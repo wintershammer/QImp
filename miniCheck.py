@@ -21,7 +21,8 @@ typeEnv =  {"tensor" : typecheck.envTensor, "measure": typecheck.envMeasure, "ap
 class QImp(object):
 
     def __init__(self, envExt={}):
-        self.env = {"tensor" : typecheck.envTensor, "measure": typecheck.envMeasure, "apply" : typecheck.envApply, "tensorOp" : typecheck.envTensorOp, "+" : typecheck.envAdd}
+        self.env = {"tensor" : typecheck.envTensor, "measure": typecheck.envMeasure, "apply" : typecheck.envApply,
+                    "tensorOp" : typecheck.envTensorOp, "+" : typecheck.envAdd, "applyN" : typecheck.envApplyN}
         self.env.update(envExt)
         self.constr = {}
         #defaultEnf(env)

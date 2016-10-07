@@ -99,7 +99,8 @@ class QImp(object):
         
         funName = (node.text.split("(")[0])#get function name (to check if its a typed func)
         
-        if funName in self.typeEnv and (funName != "tensor" and funName != "apply" and funName != "measure" and funName != "tensorOp"):
+        if funName in self.typeEnv and (funName != "tensor" and funName != "apply" and funName != "measure" and funName != "tensorOp"
+                                        and funName != "applyN"):
             
             func = self.typeEnv[funName]
 
@@ -107,10 +108,15 @@ class QImp(object):
             argTypes = []
             for item in returner:
                 #print(item)
-                if not (isinstance(item,list)):
+                if not (isinstance(item,list) or isinstance(item,int)):
+                    print(type(item))
                     raise Exception("Linear function input {0} was not of quantum type".format(item))
                 else:
-                    argTypes.append(tsek.generateListType(item))
+                    if isinstance(item,int):
+                        typecheckLib.Int
+                    elif(isinstance(item,list)):
+                        argTypes.append(tsek.generateListType(item))
+                    
                     
             for constraint,arg in zip(func.const[0][0],argTypes):
                 if not (constraint == arg):
@@ -282,7 +288,7 @@ def defaultEnf(env):
     env['map'] = lambda x,y: list(map(x,y))
     env['fold'] = lambda x,y : functools.reduce(x,y)
     env['tensor'] = lambda x,y: np.kron(x,y).tolist()
-    env['apply'] = lambda x,y: np.dot(x,y)
+    env['apply'] = lambda x,y: np.dot(x,y).tolist()
     env['outer'] = lambda x,y: np.outer(x,y)
     env['measure'] = lambda x: quantumLib.measure(x)
     env['subsystems'] = lambda state,configuration: quantumLib.splitToSub(state,configuration)
@@ -310,8 +316,17 @@ def defaultEnf(env):
     env["logTwo"] = lambda x: int(math.log(x,2))
     env["length"] = lambda x: len(x)
     env["tensorOp"] = lambda x,y: np.kron(x,y)
+    env["applyN"] = lambda x,y,z: repeatedApp(x,y,z)
     env["transpose"] = lambda x: (quantumLib.ctransp(x)).tolist();
 
+
+def repeatedApp(U,y,n): #applies U to y n times
+    state = y
+    for i in range(0,n):
+        state = np.dot(U,state)
+    return state.tolist()
+
+    
 def parseItem(item):
     a = QImp()
     return a.eval(item)
@@ -327,3 +342,7 @@ def run(filename):
         a = QImp()
         kek  = a.eval(myfile.read())
     #print("Global env:",a.env)
+
+
+if __name__ == "__main__":
+    run('testorGrover')

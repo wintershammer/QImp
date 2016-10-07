@@ -1,0 +1,3 @@
+let groverRoutine = lambda(state : qubit * qubit * qubit, iteration : !{operator[3]}, times : int){
+	applyN(iteration,state,times)
+}
