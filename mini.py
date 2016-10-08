@@ -317,6 +317,7 @@ def defaultEnf(env):
     env["length"] = lambda x: len(x)
     env["tensorOp"] = lambda x,y: np.kron(x,y)
     env["applyN"] = lambda x,y,z: repeatedApp(x,y,z)
+    env["toInt"] = lambda x: int(x)
     env["transpose"] = lambda x: (quantumLib.ctransp(x)).tolist();
 
 
@@ -345,4 +346,4 @@ def run(filename):
 
 
 if __name__ == "__main__":
-    run('testorGrover')
+    run('generalisedGrover')
