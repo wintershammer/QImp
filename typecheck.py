@@ -62,6 +62,7 @@ Complex = "Complex"
 Float = "Float"
 Bool = "Bool"
 String = "String"
+List = "List"
 
 class Exponential:
 
@@ -190,6 +191,9 @@ def typecheck(item,env):
                     return Lollipop(argType, Lollipop(Multiplicative(argType.t1,argType.t1),Multiplicative(argType.t1,argType.t1)))
                 elif str(item.e1) == "measure": #measure just adds exponential modality to its argument
                     return Exponential(argType)
+                elif str(item.e1) == "subsystems": #measure just adds exponential modality to its argument
+                    print("ohiaaao",argType)
+                    return Lollipop(argType,Lollipop(List,Exponential(argType)))
                 elif str(item.e1) == "applyN":
                     return Lollipop(argType.t2,Lollipop(Int,argType.t2))
                 else:
@@ -215,7 +219,7 @@ def assertBindingUsed(name,env):
 
             raise Exception("Binding {0} not used".format(name))
 
-
+EnvSubSyst = Exponential(Lollipop(Qubit,Lollipop(List,Exponential(Qubit))))
 envAdd = Exponential(Lollipop(Int,Int))
 envApplyN = Exponential(Lollipop(Lollipop(Qubit,Qubit),Lollipop(Qubit,Lollipop(Int,Qubit))))
 envApply = Exponential(Lollipop(Lollipop(Qubit,Qubit),Lollipop(Qubit,Qubit))) #qubit -> qubit so you can do both inner product and matrix mult

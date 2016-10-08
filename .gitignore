@@ -108,3 +108,4 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 problemz
+should probably not allow assignments of the form

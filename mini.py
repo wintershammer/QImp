@@ -100,7 +100,7 @@ class QImp(object):
         funName = (node.text.split("(")[0])#get function name (to check if its a typed func)
         
         if funName in self.typeEnv and (funName != "tensor" and funName != "apply" and funName != "measure" and funName != "tensorOp"
-                                        and funName != "applyN"):
+                                        and funName != "applyN" and funName != "subsystems"):
             
             func = self.typeEnv[funName]
 

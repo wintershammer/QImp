@@ -22,7 +22,8 @@ class QImp(object):
 
     def __init__(self, envExt={}):
         self.env = {"tensor" : typecheck.envTensor, "measure": typecheck.envMeasure, "apply" : typecheck.envApply,
-                    "tensorOp" : typecheck.envTensorOp, "+" : typecheck.envAdd, "applyN" : typecheck.envApplyN}
+                    "tensorOp" : typecheck.envTensorOp, "+" : typecheck.envAdd, "applyN" : typecheck.envApplyN,
+                    "subsystems" : typecheck.EnvSubSyst}
         self.env.update(envExt)
         self.constr = {}
         #defaultEnf(env)

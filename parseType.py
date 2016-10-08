@@ -24,6 +24,8 @@ def parseType(string):
         return typecheck.Qubit
     elif string == "int":
         return typecheck.Int
+    elif string == "list":
+        return typecheck.List
     else:
         raise Exception("Argument {0} has wrong type declaration".format(string))
 

@@ -38,7 +38,7 @@ let groverIter = lambda(state,Uf,times){
 let grover = lambda(string){
 	let Uf = oracle(generateMatrix(f(string),4))
 	let initialState = apply(tensor(Htwo,H),tensor([1 0 0 0],[0 1]))
-	subsystems(groverIter(initialState,Uf,4),[2 1])
+	groverIter(initialState,Uf,4)
 }
 
-grover([1 0 0 0])
+grover([0 0 1 0])

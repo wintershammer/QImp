@@ -7,6 +7,15 @@ from math import log
 def parseAndGenerateListType(lista):
     lizt = parseItem(lista)[0]
     shape = np.array(lizt).shape
+    
+    for item in lista:
+        if item != "[" and item != "]":
+            if (isinstance(item,float) or isinstance(item,int)):
+                if item > 1 or item < -1:
+                    return tp.List
+            elif (isinstance(item,str)):
+                return tp.List
+                
     if len(shape) == 1:
         dim = int(log(len(lizt),2))
         if dim == 1:
@@ -23,6 +32,15 @@ def parseAndGenerateListType(lista):
 
 def generateListType(lista):
     shape = np.array(lista).shape
+
+    for item in lista:
+        if item != "[" and item != "]":
+            if (isinstance(item,float) or isinstance(item,int)):
+                if item > 1 or item < -1:
+                    return tp.List
+            elif (isinstance(item,str)):
+                return tp.List
+            
     if len(shape) == 1:
         dim = int(log(len(lista),2))
         if dim == 1:
