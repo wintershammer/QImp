@@ -14,20 +14,20 @@ let qfSum = lambda(limit,vec,index,N){
 	}
 }
 
-let outer = lambda(vec,index,N){
+let outerSum = lambda(vec,index,N){
 	if((N = index)){
 		[]
 	}
 	else{
 		append(((1 / sqrt(N)) * qfSum(N,vec,index,N)),
-				outer(vec,(index + 1),N))
+				outerSum(vec,(index + 1),N))
 	}
 
 }
 
 let qft = lambda(vec){
 	let N = len(vec)
-	outer(vec,0,N)
+	outerSum(vec,0,N)
 }
 
 let qftGen = lambda(dim){
