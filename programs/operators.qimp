@@ -1,0 +1,14 @@
+let identity = lambda(vec){
+	vec
+}
+
+let hadamard = lambda(vec){
+	let element = (1 / sqrt(2))
+	[((element * car(vec)) + (element * car . cdr(vec)))
+	((element * car(vec)) - (element * car . cdr(vec)))]
+}
+
+
+let inverse = lambda(vec){
+	reverse(vec)
+}

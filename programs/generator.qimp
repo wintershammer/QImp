@@ -1,0 +1,30 @@
+let genBasisVec = lambda(dim, index){
+	if((dim = (0 - 1))){
+		[]
+	}
+	else{
+		if((dim = index)){
+			prepend(1,
+					genBasisVec((dim - 1),index))
+		}
+		else{
+			prepend(0,
+					genBasisVec((dim - 1),index))
+		}
+	}
+}
+
+let genBasis = lambda(dim,counter){
+	if((counter = dim)){
+		[genBasisVec(dim,counter)]
+	}
+	else{
+		append(genBasisVec(dim,counter),
+				genBasis(dim,(counter + 1)))
+	}
+}
+
+let generateMatrix = lambda(operator,dim){
+	let basis = genBasis((dim - 1),0)
+	map(operator,basis)
+}
